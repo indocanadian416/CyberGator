@@ -1,0 +1,717 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberGator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #news-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .news-item {
+            background-color: #1e1e1e;
+            border-radius: 5px;
+            padding: 15px;
+            width: calc(33.333% - 20px);
+            box-sizing: border-box;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .news-item h2 {
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+        .news-item a {
+            color: #4a90e2;
+            text-decoration: none;
+        }
+        .news-item a:hover {
+            text-decoration: underline;
+        }
+        .news-item p {
+            font-size: 0.9em;
+            color: #b0b0b0;
+        }
+        .news-item small {
+            display: block;
+            margin-top: 10px;
+            color: #999999;
+        }
+        .attribution {
+            text-align: center;
+            margin-top: 20px;
+            color: #999999;
+            font-style: italic;
+        }
+        #generate-container {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+        }
+        #generate-button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #generate-button:hover {
+            background-color: #3a7fcf;
+        }
+        #generate-button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        #hypothesis-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #1e1e1e;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            display: none;
+        }
+        #hypothesis-container h2 {
+            color: #ffffff;
+            margin-top: 0;
+            text-align: center;
+        }
+        .hypothesis-item {
+            background-color: #2a2a2a;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .hypothesis-item h3 {
+            margin-top: 0;
+            color: #4a90e2;
+        }
+        .loading {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>CyberGator</h1>
+    <div id="news-container"></div>
+    
+    <div id="generate-container">
+        <button id="generate-button">Generate Threat Hunting Hypothesis</button>
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>Analyzing news articles and generating hypothesis...</p>
+        </div>
+    </div>
+    
+    <div id="hypothesis-container">
+        <h2>Threat Hunting Hypothesis</h2>
+        <div id="hypothesis-list"></div>
+    </div>
+    
+    <div class="attribution">Created by Pratik Goswami</div>
+
+    <script>
+        const newsContainer = document.getElementById('news-container');
+        const generateButton = document.getElementById('generate-button');
+        const hypothesisContainer = document.getElementById('hypothesis-container');
+        const hypothesisList = document.getElementById('hypothesis-list');
+        const loadingElement = document.getElementById('loading');
+        const corsProxy = 'https://api.rss2json.com/v1/api.json?rss_url=';
+        const rssFeeds = [
+            'https://www.bleepingcomputer.com/feed/',
+            'https://feeds.feedburner.com/TheHackersNews',
+            'https://threatpost.com/feed/',
+            'https://www.darkreading.com/rss.xml',
+            'https://krebsonsecurity.com/feed/',
+            'https://www.securityweek.com/feed/',
+            'https://nakedsecurity.sophos.com/feed/',
+            'https://www.schneier.com/feed/atom/',
+            'https://www.infosecurity-magazine.com/rss/news/',
+            'https://www.cisa.gov/uscert/ncas/current-activity.xml',
+            'https://www.zdnet.com/topic/security/rss.xml',
+            'https://www.csoonline.com/index.rss',
+            'https://www.helpnetsecurity.com/feed/',
+            'https://www.scmagazine.com/feed/',
+            'https://www.cyberscoop.com/feed/',
+            'https://www.cybersecuritydive.com/feeds/news/',
+            'https://www.databreachtoday.com/rss-feeds',
+            'https://www.bankinfosecurity.com/rss-feeds',
+            'https://www.govinfosecurity.com/rss-feeds',
+            'https://www.healthcareinfosecurity.com/rss-feeds'
+        ];
+        
+        let newsArticles = [];
+
+        async function fetchRSS(url) {
+            try {
+                const response = await fetch(corsProxy + encodeURIComponent(url));
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                return data.items.slice(0, 5).map(item => ({
+                    title: item.title,
+                    link: item.link,
+                    description: item.description,
+                    pubDate: item.pubDate
+                }));
+            } catch (error) {
+                console.error('Error fetching RSS feed:', error.message);
+                return [];
+            }
+        }
+
+        function displayNews(newsItems) {
+            newsContainer.innerHTML = '';
+            newsArticles = newsItems; // Store articles for later use
+            newsItems.forEach(item => {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item';
+                newsItem.innerHTML = `
+                    <h2><a href="${item.link}" target="_blank">${item.title}</a></h2>
+                    <p>${stripHtml(item.description).slice(0, 150)}...</p>
+                    <small>${new Date(item.pubDate).toLocaleString()}</small>
+                `;
+                newsContainer.appendChild(newsItem);
+            });
+        }
+
+        function stripHtml(html) {
+            let tmp = document.createElement("DIV");
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || "";
+        }
+
+        async function updateNews() {
+            try {
+                const allNews = await Promise.all(rssFeeds.map(fetchRSS));
+                const flattenedNews = allNews.flat();
+                flattenedNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+                displayNews(flattenedNews.slice(0, 15));
+            } catch (error) {
+                console.error('Error updating news:', error.message);
+            }
+        }
+
+        function generateThreatHuntingHypothesis() {
+            loadingElement.style.display = 'block';
+            generateButton.disabled = true;
+            
+            // Simulate processing time (in a real implementation, this would be an API call)
+            setTimeout(() => {
+                const hypothesis = generateHypothesisFromArticles(newsArticles);
+                displayHypothesis(hypothesis);
+                loadingElement.style.display = 'none';
+                generateButton.disabled = false;
+                hypothesisContainer.style.display = 'block';
+                
+                // Scroll to the hypothesis
+                hypothesisContainer.scrollIntoView({ behavior: 'smooth' });
+            }, 2000);
+        }
+
+        function generateHypothesisFromArticles(articles) {
+            // Extract keywords, trends, and topics from the articles
+            const extractedData = extractDataFromArticles(articles);
+            return createDynamicHypothesis(extractedData, articles);
+        }
+
+        function extractDataFromArticles(articles) {
+            // Keywords that indicate different types of threats
+            const threatKeywords = {
+                malware: ['malware', 'ransomware', 'trojan', 'virus', 'worm', 'spyware', 'backdoor', 'rootkit'],
+                phishing: ['phish', 'social engineering', 'credential', 'email attack', 'spoofing'],
+                vulnerabilities: ['vulnerability', 'exploit', 'patch', 'cve', 'zero-day', 'disclosure', 'flaw', 'weakness'],
+                access: ['remote access', 'vpn', 'rdp', 'ssh', 'lateral movement', 'privilege escalation'],
+                data: ['data leak', 'exfiltration', 'breach', 'sensitive data', 'data theft', 'information exposure'],
+                authentication: ['credential', 'password', 'authentication', 'identity', 'mfa', '2fa', 'login'],
+                cloud: ['aws', 'azure', 'cloud', 'saas', 'container', 'kubernetes', 's3', 'bucket'],
+                iot: ['iot', 'device', 'smart', 'connected', 'router', 'camera'],
+                supplyChain: ['supply chain', 'vendor', 'third-party', 'software supply', 'dependency'],
+                apt: ['apt', 'nation state', 'targeted attack', 'advanced', 'persistent threat']
+            };
+            
+            // Keywords for attack vectors and methods
+            const vectorKeywords = {
+                webApp: ['web application', 'web app', 'website', 'webapp', 'sql injection', 'xss', 'csrf'],
+                email: ['email', 'phishing', 'spear phishing', 'attachment', 'office document'],
+                network: ['network', 'protocol', 'packet', 'traffic', 'firewall', 'router', 'dns'],
+                endpoint: ['endpoint', 'workstation', 'laptop', 'desktop', 'client', 'host'],
+                server: ['server', 'database', 'active directory', 'domain controller', 'file server'],
+                mobile: ['mobile', 'android', 'ios', 'smartphone', 'tablet', 'app'],
+                social: ['social media', 'facebook', 'twitter', 'linkedin', 'instagram']
+            };
+            
+            // Common attack techniques
+            const techniqueKeywords = {
+                injection: ['injection', 'sql', 'command', 'code injection'],
+                forgery: ['forgery', 'csrf', 'request forgery', 'session'],
+                bruteForce: ['brute force', 'password spray', 'credential stuffing', 'dictionary attack'],
+                mitm: ['man in the middle', 'mitm', 'interception', 'eavesdropping'],
+                dos: ['dos', 'ddos', 'denial of service', 'availability'],
+                fileless: ['fileless', 'memory-based', 'living off the land'],
+                encryption: ['encryption', 'cryptography', 'tls', 'ssl', 'https']
+            };
+            
+            // Extract the text from all articles
+            const allText = articles.map(article => {
+                return (article.title + ' ' + stripHtml(article.description)).toLowerCase();
+            }).join(' ');
+            
+            // Count occurrences of each keyword category
+            const threatCounts = {};
+            const vectorCounts = {};
+            const techniqueCounts = {};
+            const mentionedArticles = {};
+            
+            // Count threat keywords
+            for (const [category, keywords] of Object.entries(threatKeywords)) {
+                threatCounts[category] = 0;
+                mentionedArticles[category] = [];
+                
+                keywords.forEach(keyword => {
+                    let index = allText.indexOf(keyword);
+                    while (index !== -1) {
+                        threatCounts[category]++;
+                        
+                        // Find which article this keyword is in
+                        const articleIndex = articles.findIndex(article => {
+                            const content = (article.title + ' ' + stripHtml(article.description)).toLowerCase();
+                            return content.includes(keyword);
+                        });
+                        
+                        if (articleIndex !== -1 && !mentionedArticles[category].includes(articles[articleIndex].title)) {
+                            mentionedArticles[category].push(articles[articleIndex].title);
+                        }
+                        
+                        index = allText.indexOf(keyword, index + 1);
+                    }
+                });
+            }
+            
+            // Count vector keywords
+            for (const [vector, keywords] of Object.entries(vectorKeywords)) {
+                vectorCounts[vector] = 0;
+                
+                keywords.forEach(keyword => {
+                    let index = allText.indexOf(keyword);
+                    while (index !== -1) {
+                        vectorCounts[vector]++;
+                        index = allText.indexOf(keyword, index + 1);
+                    }
+                });
+            }
+            
+            // Count technique keywords
+            for (const [technique, keywords] of Object.entries(techniqueKeywords)) {
+                techniqueCounts[technique] = 0;
+                
+                keywords.forEach(keyword => {
+                    let index = allText.indexOf(keyword);
+                    while (index !== -1) {
+                        techniqueCounts[technique]++;
+                        index = allText.indexOf(keyword, index + 1);
+                    }
+                });
+            }
+            
+            // Get top threats, vectors, and techniques
+            const topThreats = Object.entries(threatCounts)
+                .sort((a, b) => b[1] - a[1])
+                .filter(([_, count]) => count > 0)
+                .slice(0, 3)
+                .map(([threat, _]) => ({
+                    name: threat,
+                    articles: mentionedArticles[threat]
+                }));
+                
+            const topVectors = Object.entries(vectorCounts)
+                .sort((a, b) => b[1] - a[1])
+                .filter(([_, count]) => count > 0)
+                .slice(0, 2)
+                .map(([vector, _]) => vector);
+                
+            const topTechniques = Object.entries(techniqueCounts)
+                .sort((a, b) => b[1] - a[1])
+                .filter(([_, count]) => count > 0)
+                .slice(0, 2)
+                .map(([technique, _]) => technique);
+            
+            return {
+                topThreats,
+                topVectors,
+                topTechniques
+            };
+        }
+
+        function createDynamicHypothesis(extractedData, articles) {
+            const { topThreats, topVectors, topTechniques } = extractedData;
+            const hypothesisList = [];
+            
+            // Hypothesis templates for different threat categories
+            const threatTemplates = {
+                malware: [
+                    "Hunt for unexpected processes with network connections to recently registered domains that may indicate {MALWARE_TYPE} activity",
+                    "Search for evidence of persistence mechanisms commonly used by {MALWARE_TYPE}, including scheduled tasks, startup items, and registry modifications",
+                    "Identify unusual PowerShell or command line execution patterns that could indicate fileless {MALWARE_TYPE}",
+                    "Look for evidence of {MALWARE_TYPE} attempting to disable security tools or logging mechanisms",
+                    "Detect unusual DLL loading patterns that may indicate {MALWARE_TYPE} injection techniques"
+                ],
+                phishing: [
+                    "Hunt for indicators of successful phishing attacks, such as unusual login patterns or credential usage",
+                    "Identify email forwarding rules that could be used to exfiltrate messages following a phishing compromise",
+                    "Look for evidence of users accessing suspicious URLs shortly before changes in account behavior",
+                    "Search logs for users who entered credentials on suspected phishing domains",
+                    "Detect artifacts from document exploitation techniques commonly used in phishing campaigns"
+                ],
+                vulnerabilities: [
+                    "Hunt for exploitation attempts targeting the recently disclosed {CVE_PATTERN} vulnerability",
+                    "Identify systems in your environment that may still be vulnerable to {VULN_TYPE} attacks",
+                    "Look for unusual web requests that match known {VULN_TYPE} exploitation patterns",
+                    "Search for evidence of post-exploitation activity following successful vulnerability exploitation",
+                    "Detect lateral movement attempts leveraging recently patched vulnerabilities"
+                ],
+                access: [
+                    "Hunt for abnormal remote access connections from unusual geographic locations or during off-hours",
+                    "Identify unauthorized privilege escalation following remote access sessions",
+                    "Look for evidence of remote access tools being installed through legitimate management channels",
+                    "Search for unusual account behavior during or after remote sessions",
+                    "Detect attempts to establish persistence through remote access mechanisms"
+                ],
+                data: [
+                    "Hunt for unusual data access patterns that may indicate staging before exfiltration",
+                    "Identify large or abnormal data transfers to external domains or cloud storage",
+                    "Look for evidence of data compression or encryption before exfiltration attempts",
+                    "Search for access to sensitive data repositories from unusual endpoints or accounts",
+                    "Detect database queries returning abnormally large result sets that could indicate data theft"
+                ],
+                authentication: [
+                    "Hunt for authentication attempts that bypass or manipulate MFA mechanisms",
+                    "Identify patterns consistent with password spraying or credential stuffing attacks",
+                    "Look for unusual successful login patterns, especially from new devices or locations",
+                    "Search for evidence of credential dumping using Mimikatz or similar tools",
+                    "Detect modifications to authentication mechanisms or identity stores"
+                ],
+                cloud: [
+                    "Hunt for unusual API calls to cloud services from unrecognized IP addresses",
+                    "Identify suspicious privilege escalation in cloud IAM configurations",
+                    "Look for evidence of cloud credential theft via instance metadata services",
+                    "Search for unauthorized access to cloud storage or database resources",
+                    "Detect unusual serverless function invocations or container deployments"
+                ],
+                iot: [
+                    "Hunt for IoT devices communicating with known malicious domains or unusual endpoints",
+                    "Identify unauthorized device enrollment or connection attempts in your network",
+                    "Look for evidence of IoT device firmware tampering or modification",
+                    "Search for unusual traffic patterns or protocol usage from IoT devices",
+                    "Detect attempts to use IoT devices as network pivots or for lateral movement"
+                ],
+                supplyChain: [
+                    "Hunt for evidence of tampering in software update mechanisms or packages",
+                    "Identify unexpected changes to trusted vendor applications after updates",
+                    "Look for unusual network connections from recently updated software",
+                    "Search for modifications to CI/CD pipelines or build systems",
+                    "Detect unexpected behavior from supply chain components after vendor incidents"
+                ],
+                apt: [
+                    "Hunt for evidence of LOLBAS (Living Off The Land Binaries and Scripts) usage by APT actors",
+                    "Identify long-dwelling persistent access mechanisms associated with targeted threat actors",
+                    "Look for command and control traffic disguised as legitimate protocols",
+                    "Search for evidence of data staging prior to exfiltration, typical of APT operations",
+                    "Detect anti-forensic techniques like timestomping or log deletion used by sophisticated actors"
+                ]
+            };
+
+            // Vector-specific templates
+            const vectorTemplates = {
+                webApp: [
+                    "in web server logs",
+                    "through web application firewall alerts",
+                    "in web proxy traffic",
+                    "via suspicious URL parameters or paths",
+                    "through HTML/JavaScript injection patterns"
+                ],
+                email: [
+                    "in email gateway logs",
+                    "through email header analysis",
+                    "via suspicious attachment detonation",
+                    "in mail forwarding rules",
+                    "through email click tracking"
+                ],
+                network: [
+                    "in network traffic analysis",
+                    "through packet capture analysis",
+                    "via firewall logs",
+                    "in DNS query patterns",
+                    "through encrypted traffic analysis"
+                ],
+                endpoint: [
+                    "on user workstations",
+                    "through endpoint detection tools",
+                    "via process creation events",
+                    "in user profile modifications",
+                    "through registry change monitoring"
+                ],
+                server: [
+                    "on critical infrastructure servers",
+                    "through server event logs",
+                    "via administrative access reviews",
+                    "in server configuration changes",
+                    "through service creation events"
+                ],
+                mobile: [
+                    "on corporate mobile devices",
+                    "through MDM alert analysis",
+                    "via mobile app behavior monitoring",
+                    "in unusual permission requests",
+                    "through certificate validation failures"
+                ],
+                social: [
+                    "in corporate social media accounts",
+                    "through brand monitoring alerts",
+                    "via employee social account connections",
+                    "in message content pattern analysis",
+                    "through unusual social engagement patterns"
+                ]
+            };
+
+            // Technique-specific templates
+            const techniqueTemplates = {
+                injection: [
+                    "using command sequence analysis",
+                    "by detecting unusual input patterns",
+                    "through taint analysis of user input",
+                    "by identifying escape character sequences",
+                    "through payload signature matching"
+                ],
+                forgery: [
+                    "by analyzing request origins and headers",
+                    "through session token validation patterns",
+                    "by identifying cross-domain request patterns",
+                    "through cookie manipulation detection",
+                    "by monitoring state-changing operations"
+                ],
+                bruteForce: [
+                    "using authentication attempt velocity analysis",
+                    "by identifying distributed login attempts",
+                    "through credential stuffing pattern recognition",
+                    "by detecting password spray techniques",
+                    "through failed login correlation"
+                ],
+                mitm: [
+                    "by detecting certificate anomalies",
+                    "through traffic routing pattern analysis",
+                    "by identifying encryption downgrade attempts",
+                    "through unusual proxy connections",
+                    "by validating connection integrity"
+                ],
+                dos: [
+                    "using traffic volume anomaly detection",
+                    "by identifying resource exhaustion patterns",
+                    "through connection flood analysis",
+                    "by monitoring application performance metrics",
+                    "through resource utilization baselining"
+                ],
+                fileless: [
+                    "by monitoring in-memory code execution",
+                    "through PowerShell script block logging",
+                    "by identifying reflective loading techniques",
+                    "through WMI event subscription analysis",
+                    "by detecting living-off-the-land binaries usage"
+                ],
+                encryption: [
+                    "using TLS/SSL fingerprinting",
+                    "by detecting weak cipher usage",
+                    "through certificate validation failures",
+                    "by identifying encrypted channel anomalies",
+                    "through encrypted traffic pattern analysis"
+                ]
+            };
+
+            // Generate threat-specific hypothesis
+            if (topThreats.length > 0) {
+                topThreats.forEach(threat => {
+                    if (threatTemplates[threat.name]) {
+                        // Get random template for this threat
+                        const templates = [...threatTemplates[threat.name]];
+                        const randomTemplateIndex = Math.floor(Math.random() * templates.length);
+                        let template = templates[randomTemplateIndex];
+                        
+                        // Replace placeholders if necessary
+                        if (threat.name === 'malware') {
+                            const malwareTypes = ['ransomware', 'trojan', 'backdoor', 'info stealer', 'loader', 'wiper'];
+                            const randomType = malwareTypes[Math.floor(Math.random() * malwareTypes.length)];
+                            template = template.replace('{MALWARE_TYPE}', randomType);
+                        } else if (threat.name === 'vulnerabilities') {
+                            const vulnTypes = ['RCE', 'privilege escalation', 'SQL injection', 'path traversal', 'XSS'];
+                            const cvePatterns = ['CVE-2023', 'CVE-2024', 'recently disclosed'];
+                            const randomVuln = vulnTypes[Math.floor(Math.random() * vulnTypes.length)];
+                            const randomCve = cvePatterns[Math.floor(Math.random() * cvePatterns.length)];
+                            template = template.replace('{VULN_TYPE}', randomVuln);
+                            template = template.replace('{CVE_PATTERN}', randomCve);
+                        }
+                        
+                        // Add vector if available
+                        let vectorPhrase = '';
+                        if (topVectors.length > 0) {
+                            const randomVector = topVectors[Math.floor(Math.random() * topVectors.length)];
+                            const vectorOptions = vectorTemplates[randomVector];
+                            if (vectorOptions) {
+                                const randomVectorTemplate = vectorOptions[Math.floor(Math.random() * vectorOptions.length)];
+                                vectorPhrase = ` ${randomVectorTemplate}`;
+                            }
+                        }
+                        
+                        // Add technique if available
+                        let techniquePhrase = '';
+                        if (topTechniques.length > 0) {
+                            const randomTechnique = topTechniques[Math.floor(Math.random() * topTechniques.length)];
+                            const techniqueOptions = techniqueTemplates[randomTechnique];
+                            if (techniqueOptions) {
+                                const randomTechniqueTemplate = techniqueOptions[Math.floor(Math.random() * techniqueOptions.length)];
+                                techniquePhrase = ` ${randomTechniqueTemplate}`;
+                            }
+                        }
+                        
+                        // Format title based on threat
+                        const threatTitle = threat.name.charAt(0).toUpperCase() + threat.name.slice(1);
+                        
+                        // Combine to create hypothesis
+                        const hypothesis = {
+                            title: `${threatTitle}-related Threat Hunting`,
+                            hypothesis: `${template}${vectorPhrase}${techniquePhrase}.`,
+                            context: threat.articles.length > 0 
+                                ? `Based on recent news about ${threat.articles.slice(0, 2).join(' and ')}`
+                                : `Based on recent cybersecurity trends`
+                        };
+                        
+                        hypothesisList.push(hypothesis);
+                    }
+                });
+            }
+            
+            // If we don't have enough topics from the articles, add generic ones
+            const genericHypotheses = [
+                {
+                    title: "Credential Theft Detection",
+                    hypothesis: "Hunt for evidence of credential dumping tools execution in your environment by monitoring for suspicious process activities and memory access patterns.",
+                    context: "Based on ongoing credential theft tactics seen in recent breaches"
+                },
+                {
+                    title: "Living-Off-The-Land Detection",
+                    hypothesis: "Look for suspicious usage of legitimate system utilities (like PowerShell, WMI, or WMIC) with encoded or obfuscated command lines.",
+                    context: "Based on increasing fileless malware trends"
+                },
+                {
+                    title: "Command & Control Detection",
+                    hypothesis: "Identify potential command-and-control traffic using DNS tunneling or HTTPS beaconing by analyzing outbound connection patterns.",
+                    context: "Based on evolving C2 communication techniques"
+                },
+                {
+                    title: "Privilege Escalation Hunting",
+                    hypothesis: "Search for unauthorized changes to Group Policy Objects or scheduled tasks that could indicate privilege escalation attempts.",
+                    context: "Based on common lateral movement techniques"
+                },
+                {
+                    title: "Anti-Forensic Technique Detection",
+                    hypothesis: "Hunt for evidence of log clearing, timestomping, or other anti-forensic techniques that may indicate sophisticated attackers.",
+                    context: "Based on attacker evasion tactics"
+                },
+                {
+                    title: "Initial Access Vector Analysis",
+                    hypothesis: "Analyze perimeter logs for successful access attempts following suspected phishing campaigns or vulnerability announcements.",
+                    context: "Based on common initial access techniques"
+                },
+                {
+                    title: "Data Exfiltration Detection",
+                    hypothesis: "Monitor for unusual data transfer patterns, particularly large archives or transfers to unusual domains during off-hours.",
+                    context: "Based on common data theft techniques"
+                },
+                {
+                    title: "Insider Threat Monitoring",
+                    hypothesis: "Hunt for unusual access patterns to sensitive data or resources that might indicate insider threat activity.",
+                    context: "Based on insider risk management best practices"
+                },
+                {
+                    title: "Persistence Mechanism Detection",
+                    hypothesis: "Search for unusual registry modifications, new services, or startup items that may indicate attacker persistence.",
+                    context: "Based on common persistence techniques"
+                },
+                {
+                    title: "Cloud Resource Misuse",
+                    hypothesis: "Monitor for unusual API calls to cloud resources or unexpected resource provisioning that could indicate account compromise.",
+                    context: "Based on increasing cloud-focused attacks"
+                }
+            ];
+            
+            // Shuffle generic hypotheses
+            for (let i = genericHypotheses.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [genericHypotheses[i], genericHypotheses[j]] = [genericHypotheses[j], genericHypotheses[i]];
+            }
+            
+            // Fill up to 10 hypotheses
+            while (hypothesisList.length < 10 && genericHypotheses.length > 0) {
+                hypothesisList.push(genericHypotheses.shift());
+            }
+            
+            return hypothesisList;
+        }
+
+        function displayHypothesis(hypothesisData) {
+            hypothesisList.innerHTML = '';
+            
+            hypothesisData.forEach((item, index) => {
+                const hypothesisItem = document.createElement('div');
+                hypothesisItem.className = 'hypothesis-item';
+                hypothesisItem.innerHTML = `
+                    <h3>${index + 1}. ${item.title}</h3>
+                    <p><strong>Hypothesis:</strong> ${item.hypothesis}</p>
+                    <p><strong>Context:</strong> ${item.context}</p>
+                `;
+                hypothesisList.appendChild(hypothesisItem);
+            });
+        }
+
+        // Event listeners
+        generateButton.addEventListener('click', generateThreatHuntingHypothesis);
+
+        // Initialize the page
+        updateNews();
+    </script>
+</body>
+</html>
