@@ -1,2 +1,2 @@
 # CyberGator
-Threat Hunting &amp; Threat Intelligence
+Threat Hunting & Threat Intelligence
