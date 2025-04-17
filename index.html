@@ -33,6 +33,38 @@
             font-family: 'Orbitron', sans-serif;
         }
 
+        /* Navigation Bar */
+        .nav-bar {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.2), rgba(153, 51, 255, 0.2));
+            border: 1px solid var(--cyber-blue);
+            padding: 0.75rem 1.5rem;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: #ffffff;
+        }
+
+        .nav-button:hover {
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            transform: translateY(-2px);
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.3), rgba(153, 51, 255, 0.3));
+        }
+
+        .nav-button.active {
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.5), rgba(153, 51, 255, 0.5));
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+
+        /* CyberGator Styles */
         .cyber-glow {
             text-shadow: 0 0 5px var(--cyber-blue), 0 0 10px rgba(0, 255, 255, 0.6);
         }
@@ -160,22 +192,6 @@
             100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0); }
         }
 
-        @media (max-width: 768px) {
-            .grid-cols-1-on-mobile {
-                grid-template-columns: 1fr;
-            }
-            h1 {
-                font-size: 1.75rem;
-            }
-            .cyber-button {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.9rem;
-            }
-            .news-item {
-                padding: 1rem;
-            }
-        }
-
         .feed-status {
             font-size: 0.8rem;
             text-align: center;
@@ -280,11 +296,182 @@
             font-size: 0.9rem;
             font-weight: 500;
         }
+
+        /* OSINTGator Styles */
+        .keyboard-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            padding: 2rem 0;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .row:nth-child(1) .key {
+            border-color: var(--cyber-green);
+            color: var(--cyber-green);
+        }
+
+        .row:nth-child(1) .key:hover {
+            background: var(--cyber-green);
+            color: var(--dark-bg);
+            box-shadow: 0 0 15px var(--cyber-green), 0 0 25px var(--cyber-green);
+        }
+
+        .row:nth-child(2) .key {
+            border-color: var(--cyber-blue);
+            color: var(--cyber-blue);
+        }
+
+        .row:nth-child(2) .key:hover {
+            background: var(--cyber-blue);
+            color: var(--dark-bg);
+            box-shadow: 0 0 15px var(--cyber-blue), 0 0 25px var(--cyber-blue);
+        }
+
+        .row:nth-child(3) .key {
+            border-color: var(--cyber-purple);
+            color: var(--cyber-purple);
+        }
+
+        .row:nth-child(3) .key:hover {
+            background: var(--cyber-purple);
+            color: var(--dark-bg);
+            box-shadow: 0 0 15px var(--cyber-purple), 0 0 25px var(--cyber-purple);
+        }
+
+        .key {
+            background: #2a2a2a;
+            border: 2px solid;
+            border-radius: 8px;
+            padding: 1.5rem;
+            min-width: 120px;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .key:hover {
+            transform: scale(1.05);
+        }
+
+        .key:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--cyber-blue), 0 0 20px var(--cyber-blue);
+        }
+
+        .letter {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 1.8rem;
+            line-height: 1;
+        }
+
+        .tool-name {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            color: #b0b0b0;
+        }
+
+        .tool-desc {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.7rem;
+            margin-top: 0.3rem;
+            color: #808080;
+        }
+
+        .key:hover .tool-name,
+        .key:hover .tool-desc {
+            color: var(--dark-bg);
+        }
+
+        @media (max-width: 768px) {
+            .grid-cols-1-on-mobile {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .cyber-button, .nav-button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .news-item {
+                padding: 1rem;
+            }
+
+            .keyboard-rows {
+                padding: 1.5rem 0;
+                gap: 0.75rem;
+            }
+
+            .row {
+                gap: 0.75rem;
+                flex-wrap: wrap;
+            }
+
+            .key {
+                min-width: 28%;
+                padding: 1.2rem;
+            }
+
+            .letter {
+                font-size: 1.5rem;
+            }
+
+            .tool-name {
+                font-size: 0.8rem;
+            }
+
+            .tool-desc {
+                font-size: 0.6rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .key {
+                min-width: 30%;
+                padding: 1rem;
+            }
+
+            .letter {
+                font-size: 1.3rem;
+            }
+
+            .tool-name {
+                font-size: 0.7rem;
+            }
+
+            .tool-desc {
+                font-size: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen">
     <div class="cyber-scanner"></div>
     <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <button id="nav-cybergator" class="nav-button active">CyberGator</button>
+            <button id="nav-osintgator" class="nav-button">OSINTGator</button>
+        </div>
+
         <!-- CyberGator Page -->
         <div id="cybergator">
             <header class="text-center mb-12">
@@ -324,8 +511,160 @@
             </div>
         </div>
 
-        <!-- Refresh Button -->
-        <div class="text-center">
+        <!-- OSINTGator Page -->
+        <div id="osintgator" class="hidden">
+            <header class="text-center mb-12">
+                <h1 class="text-4xl font-bold mb-4 cyber-glow">OSINT<span class="text-cyan-400">GATOR</span></h1>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    Direct Search for URLs, IPs, Hashes, Domains (Press a Key or Click)
+                </p>
+            </header>
+
+            <div class="keyboard-rows">
+                <!-- Row 1 -->
+                <div class="row">
+                    <a class="key" href="https://www.abuseipdb.com/check" target="_blank" accesskey="a">
+                        <div class="letter">A</div>
+                        <div class="tool-name">AbuseIPDB</div>
+                        <div class="tool-desc">IPs</div>
+                    </a>
+                    <a class="key" href="https://bgpview.io" target="_blank" accesskey="b">
+                        <div class="letter">B</div>
+                        <div class="tool-name">BGPView</div>
+                        <div class="tool-desc">ASNs, IPs</div>
+                    </a>
+                    <a class="key" href="https://search.censys.io" target="_blank" accesskey="c">
+                        <div class="letter">C</div>
+                        <div class="tool-name">Censys</div>
+                        <div class="tool-desc">IPs, Domains</div>
+                    </a>
+                    <a class="key" href="https://securitytrails.com/domain" target="_blank" accesskey="d">
+                        <div class="letter">D</div>
+                        <div class="tool-name">DNSTrails</div>
+                        <div class="tool-desc">Domains, DNS</div>
+                    </a>
+                    <a class="key" href="https://www.ipvoid.com/domain-reputation-check/" target="_blank" accesskey="e">
+                        <div class="letter">E</div>
+                        <div class="tool-name">IPVoid</div>
+                        <div class="tool-desc">Domains</div>
+                    </a>
+                    <a class="key" href="https://en.fofa.info" target="_blank" accesskey="f">
+                        <div class="letter">F</div>
+                        <div class="tool-name">Fofa</div>
+                        <div class="tool-desc">IPs, Domains</div>
+                    </a>
+                    <a class="key" href="https://viz.greynoise.io/query" target="_blank" accesskey="g">
+                        <div class="letter">G</div>
+                        <div class="tool-name">GreyNoise</div>
+                        <div class="tool-desc">IPs</div>
+                    </a>
+                    <a class="key" href="https://www.hybrid-analysis.com" target="_blank" accesskey="h">
+                        <div class="letter">H</div>
+                        <div class="tool-name">Hybrid Analysis</div>
+                        <div class="tool-desc">Hashes, URLs</div>
+                    </a>
+                    <a class="key" href="https://ipinfo.io" target="_blank" accesskey="i">
+                        <div class="letter">I</div>
+                        <div class="tool-name">IPinfo</div>
+                        <div class="tool-desc">IPs</div>
+                    </a>
+                    <a class="key" href="https://www.joesandbox.com" target="_blank" accesskey="j">
+                        <div class="letter">J</div>
+                        <div class="tool-name">JoeSandbox</div>
+                        <div class="tool-desc">Hashes, URLs</div>
+                    </a>
+                </div>
+                <!-- Row 2 -->
+                <div class="row">
+                    <a class="key" href="https://opentip.kaspersky.com" target="_blank" accesskey="k">
+                        <div class="letter">K</div>
+                        <div class="tool-name">Kaspersky TI</div>
+                        <div class="tool-desc">IPs, Hashes</div>
+                    </a>
+                    <a class="key" href="https://leakix.net" target="_blank" accesskey="l">
+                        <div class="letter">L</div>
+                        <div class="tool-name">LeakIX</div>
+                        <div class="tool-desc">IPs, Domains</div>
+                    </a>
+                    <a class="key" href="https://www.maltiverse.com/search" target="_blank" accesskey="m">
+                        <div class="letter">M</div>
+                        <div class="tool-name">Maltiverse</div>
+                        <div class="tool-desc">IPs, Hashes</div>
+                    </a>
+                    <a class="key" href="https://app.netlas.io" target="_blank" accesskey="n">
+                        <div class="letter">N</div>
+                        <div class="tool-name">Netlas</div>
+                        <div class="tool-desc">IPs, Domains</div>
+                    </a>
+                    <a class="key" href="https://www.onyphe.io" target="_blank" accesskey="o">
+                        <div class="letter">O</div>
+                        <div class="tool-name">Onyphe</div>
+                        <div class="tool-desc">IPs, Domains</div>
+                    </a>
+                    <a class="key" href="https://pulsedive.com" target="_blank" accesskey="p">
+                        <div class="letter">P</div>
+                        <div class="tool-name">Pulsedive</div>
+                        <div class="tool-desc">IPs, URLs</div>
+                    </a>
+                    <a class="key" href="https://www.talosintelligence.com/reputation_center" target="_blank" accesskey="q">
+                        <div class="letter">Q</div>
+                        <div class="tool-name">Talos Intelligence</div>
+                        <div class="tool-desc">IPs, Domains, Hashes</div>
+                    </a>
+                    <a class="key" href="https://otx.alienvault.com" target="_blank" accesskey="r">
+                        <div class="letter">R</div>
+                        <div class="tool-name">AlienVault OTX</div>
+                        <div class="tool-desc">IPs, Domains, Hashes</div>
+                    </a>
+                    <a class="key" href="https://www.shodan.io/search" target="_blank" accesskey="s">
+                        <div class="letter">S</div>
+                        <div class="tool-name">Shodan</div>
+                        <div class="tool-desc">IPs, Domains</div>
+                    </a>
+                </div>
+                <!-- Row 3 -->
+                <div class="row">
+                    <a class="key" href="https://threatfox.abuse.ch" target="_blank" accesskey="t">
+                        <div class="letter">T</div>
+                        <div class="tool-name">ThreatFox</div>
+                        <div class="tool-desc">IOCs, Hashes</div>
+                    </a>
+                    <a class="key" href="https://urlscan.io" target="_blank" accesskey="u">
+                        <div class="letter">U</div>
+                        <div class="tool-name">URLScan</div>
+                        <div class="tool-desc">URLs</div>
+                    </a>
+                    <a class="key" href="https://www.virustotal.com/gui" target="_blank" accesskey="v">
+                        <div class="letter">V</div>
+                        <div class="tool-name">VirusTotal</div>
+                        <div class="tool-desc">IPs, Hashes</div>
+                    </a>
+                    <a class="key" href="https://whois.domaintools.com" target="_blank" accesskey="w">
+                        <div class="letter">W</div>
+                        <div class="tool-name">WHOIS</div>
+                        <div class="tool-desc">Domains</div>
+                    </a>
+                    <a class="key" href="https://exchange.xforce.ibmcloud.com" target="_blank" accesskey="x">
+                        <div class="letter">X</div>
+                        <div class="tool-name">X-Force</div>
+                        <div class="tool-desc">IPs, Hashes</div>
+                    </a>
+                    <a class="key" href="https://yaraify.abuse.ch" target="_blank" accesskey="y">
+                        <div class="letter">Y</div>
+                        <div class="tool-name">YARAify</div>
+                        <div class="tool-desc">Hashes</div>
+                    </a>
+                    <a class="key" href="https://www.zoomeye.org" target="_blank" accesskey="z">
+                        <div class="letter">Z</div>
+                        <div class="tool-name">ZoomEye</div>
+                        <div class="tool-desc">IPs, Domains</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Refresh Button (for CyberGator) -->
+        <div id="refresh-section" class="text-center">
             <button id="refresh-button" class="refresh-button" aria-label="Refresh News">
                 <i class="fas fa-sync-alt"></i>
             </button>
@@ -341,7 +680,33 @@
     </div>
 
     <script>
-        // CyberGator Script
+        // Navigation Logic
+        const cyberGatorPage = document.getElementById('cybergator');
+        const osintGatorPage = document.getElementById('osintgator');
+        const navCyberGator = document.getElementById('nav-cybergator');
+        const navOsintGator = document.getElementById('nav-osintgator');
+        const refreshSection = document.getElementById('refresh-section');
+
+        function showCyberGator() {
+            cyberGatorPage.classList.remove('hidden');
+            osintGatorPage.classList.add('hidden');
+            navCyberGator.classList.add('active');
+            navOsintGator.classList.remove('active');
+            refreshSection.classList.remove('hidden');
+        }
+
+        function showOsintGator() {
+            cyberGatorPage.classList.add('hidden');
+            osintGatorPage.classList.remove('hidden');
+            navCyberGator.classList.remove('active');
+            navOsintGator.classList.add('active');
+            refreshSection.classList.add('hidden');
+        }
+
+        navCyberGator.addEventListener('click', showCyberGator);
+        navOsintGator.addEventListener('click', showOsintGator);
+
+        // CyberGator Script (Unchanged)
         const newsContainer = document.getElementById('news-container');
         const generateButton = document.getElementById('generate-button');
         const refreshButton = document.getElementById('refresh-button');
@@ -352,7 +717,6 @@
         const feedStatusIndicator = document.getElementById('feed-status-indicator');
         const corsProxy = 'https://api.rss2json.com/v1/api.json?rss_url=';
 
-        // Full list of 20 RSS Feeds (unchanged)
         const rssFeeds = [
             'https://www.bleepingcomputer.com/feed/',
             'https://feeds.feedburner.com/TheHackersNews',
@@ -378,11 +742,10 @@
 
         let newsArticles = [];
 
-        // Fetch RSS feeds with timeout
         async function fetchRSS(url) {
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5-second timeout
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
                 const response = await fetch(corsProxy + encodeURIComponent(url), { signal: controller.signal });
                 clearTimeout(timeoutId);
                 if (!response.ok) {
@@ -405,14 +768,12 @@
             }
         }
 
-        // Strip HTML from descriptions
         function stripHtml(html) {
             let tmp = document.createElement("DIV");
             tmp.innerHTML = html;
             return tmp.textContent || tmp.innerText || "";
         }
 
-        // Validate cached articles
         function isValidCache(cachedArticles) {
             if (!cachedArticles) return false;
             try {
@@ -423,9 +784,7 @@
             }
         }
 
-        // Update news (for initial load)
         async function updateNews() {
-            // Check if valid articles are cached
             const cachedArticles = sessionStorage.getItem('newsArticles');
             if (isValidCache(cachedArticles)) {
                 newsArticles = JSON.parse(cachedArticles);
@@ -450,17 +809,13 @@
                 });
                 successfulFetches = allNews.filter(arr => arr.length > 0).length;
 
-                // Update feed status
                 if (successfulFetches > 0) {
                     feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Live Feeds</span>`;
                 } else {
                     feedStatusIndicator.innerHTML = `<span class="feed-dot feed-error"></span><span id="feed-status-text">Error loading feeds</span>`;
                 }
 
-                // Cache articles
                 sessionStorage.setItem('newsArticles', JSON.stringify(newsArticles));
-
-                // Sort and display news
                 newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
                 displayNews(newsArticles.slice(0, 15));
             } catch (error) {
@@ -470,9 +825,7 @@
             }
         }
 
-        // Fetch news (refresh button functionality)
         async function fetchNewsForRefresh() {
-            // Clear cache to force fresh fetch
             sessionStorage.removeItem('newsArticles');
             newsContainer.innerHTML = '';
             newsArticles = [];
@@ -482,7 +835,6 @@
                 const allNews = await Promise.all(rssFeeds.map(fetchRSS));
                 const flattenedNews = allNews.flat();
                 if (flattenedNews.length === 0) {
-                    // Fallback to cached articles if available
                     const cachedArticles = sessionStorage.getItem('newsArticles');
                     if (isValidCache(cachedArticles)) {
                         newsArticles = JSON.parse(cachedArticles);
@@ -499,25 +851,18 @@
                 });
                 successfulFetches = allNews.filter(arr => arr.length > 0).length;
 
-                // Update feed status
                 if (successfulFetches > 0) {
                     feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Live Feeds</span>`;
                 } else {
                     feedStatusIndicator.innerHTML = `<span class="feed-dot feed-error"></span><span id="feed-status-text">Error loading feeds</span>`;
                 }
 
-                // Cache new articles
                 sessionStorage.setItem('newsArticles', JSON.stringify(newsArticles));
-
-                // Sort by publication date (most recent first) and display
                 newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
                 displayNews(newsArticles.slice(0, 15));
-
-                // Scroll to top
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } catch (error) {
                 console.error('Error fetching news:', error.message);
-                // Fallback to cached articles if available
                 const cachedArticles = sessionStorage.getItem('newsArticles');
                 if (isValidCache(cachedArticles)) {
                     newsArticles = JSON.parse(cachedArticles);
@@ -532,7 +877,6 @@
             }
         }
 
-        // Display news articles (optimized with document fragment)
         function displayNews(newsItems) {
             newsContainer.innerHTML = '';
             const fragment = document.createDocumentFragment();
@@ -560,7 +904,6 @@
             newsContainer.appendChild(fragment);
         }
 
-        // Generate threat hunting hypothesis
         function generateThreatHuntingHypothesis() {
             loadingElement.classList.remove('hidden');
             generateButton.disabled = true;
@@ -571,12 +914,10 @@
                 loadingElement.classList.add('hidden');
                 generateButton.disabled = false;
                 hypothesisContainer.classList.remove('hidden');
-                
                 hypothesisContainer.scrollIntoView({ behavior: 'smooth' });
             }, 1000);
         }
 
-        // Generate hypotheses from articles (10 hypotheses)
         function generateHypothesisFromArticles(articles) {
             if (articles.length === 0) {
                 return [{
@@ -712,7 +1053,6 @@
             });
         }
 
-        // Display hypotheses
         function displayHypothesis(hypotheses) {
             hypothesisList.innerHTML = '';
             const fragment = document.createDocumentFragment();
@@ -730,12 +1070,71 @@
             hypothesisList.appendChild(fragment);
         }
 
-        // Event Listeners
-        generateButton.addEventListener('click', generateThreatHuntingHypothesis);
-        refreshButton.addEventListener('click', fetchNewsForRefresh);
+        // Event Listeners for CyberGator
+        if (generateButton) {
+            generateButton.addEventListener('click', generateThreatHuntingHypothesis);
+        } else {
+            console.error('Generate button not found.');
+        }
 
-        // Initialize
+        if (refreshButton) {
+            refreshButton.addEventListener('click', fetchNewsForRefresh);
+        } else {
+            console.error('Refresh button not found.');
+        }
+
+        // Initialize CyberGator News
         updateNews();
+
+        // OSINTGator Keyboard Navigation
+        // Map of keys (A-Z) to their corresponding URLs
+        const keyToUrlMap = {
+            'a': 'https://www.abuseipdb.com/check',
+            'b': 'https://bgpview.io',
+            'c': 'https://search.censys.io',
+            'd': 'https://securitytrails.com/domain',
+            'e': 'https://www.ipvoid.com/domain-reputation-check/',
+            'f': 'https://en.fofa.info',
+            'g': 'https://viz.greynoise.io/query',
+            'h': 'https://www.hybrid-analysis.com',
+            'i': 'https://ipinfo.io',
+            'j': 'https://www.joesandbox.com',
+            'k': 'https://opentip.kaspersky.com',
+            'l': 'https://leakix.net',
+            'm': 'https://www.maltiverse.com/search',
+            'n': 'https://app.netlas.io',
+            'o': 'https://www.onyphe.io',
+            'p': 'https://pulsedive.com',
+            'q': 'https://www.talosintelligence.com/reputation_center',
+            'r': 'https://otx.alienvault.com',
+            's': 'https://www.shodan.io/search',
+            't': 'https://threatfox.abuse.ch',
+            'u': 'https://urlscan.io',
+            'v': 'https://www.virustotal.com/gui',
+            'w': 'https://whois.domaintools.com',
+            'x': 'https://exchange.xforce.ibmcloud.com',
+            'y': 'https://yaraify.abuse.ch',
+            'z': 'https://www.zoomeye.org'
+        };
+
+        // Add keypress event listener for OSINTGator
+        document.addEventListener('keydown', (event) => {
+            // Only handle keypresses if OSINTGator page is visible
+            if (osintGatorPage.classList.contains('hidden')) {
+                return;
+            }
+
+            // Get the pressed key (lowercase)
+            const key = event.key.toLowerCase();
+
+            // Check if the pressed key is in our map (A-Z)
+            if (keyToUrlMap[key]) {
+                // Prevent default browser behavior (e.g., browser shortcuts)
+                event.preventDefault();
+                // Open the URL in a new tab
+                window.open(keyToUrlMap[key], '_blank');
+            }
+        });
     </script>
 </body>
 </html>
