@@ -1,81 +1,358 @@
-<!DOCTYPE html> // 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CyberGator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com" async></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" defer>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Orbitron:wght@400;600;800&display=swap');
+
+        :root {
+            --cyber-blue: #00ffff;
+            --cyber-purple: #9933ff;
+            --cyber-green: #39ff14;
+            --dark-bg: #0a0e17;
+            --darker-bg: #060a12;
+            --card-bg: rgba(15, 23, 42, 0.9);
+            --text-primary: #e5e7eb;
+            --text-secondary: #93c5fd;
+            --text-meta: #6b7280;
+        }
+
         body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            font-family: 'Inter', sans-serif;
+            background: radial-gradient(ellipse at top, var(--dark-bg) 0%, var(--darker-bg) 100%);
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-primary);
         }
-        .news-item {
+
+        h1, h2 {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .cyber-glow {
+            text-shadow: 0 0 5px var(--cyber-blue), 0 0 10px rgba(0, 255, 255, 0.6);
+        }
+
+        .purple-glow {
+            text-shadow: 0 0 5px var(--cyber-purple), 0 0 10px rgba(153, 51, 255, 0.6);
+        }
+
+        .news-item, .glass-card {
             transition: transform 0.3s ease;
-        }
-        .news-item:hover {
-            transform: scale(1.02);
-        }
-        .glass-card {
-            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(0, 255, 255, 0.15);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.125);
+            background: var(--card-bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyber-blue));
+            animation: scanline 2.5s linear infinite; /* Reduced duration for performance */
+        }
+
+        .news-item:hover, .glass-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(0, 255, 255, 0.15);
+            border-color: var(--cyber-blue);
+        }
+
+        @keyframes scanline {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .cyber-border {
+            position: relative;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .cyber-border::after {
+            content: "";
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+            pointer-events: none;
+        }
+
+        .cyber-button {
+            position: relative;
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.2), rgba(153, 51, 255, 0.2));
+            border: 1px solid var(--cyber-blue);
+            padding: 0.75rem 1.5rem;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+            color: #ffffff;
+        }
+
+        .cyber-button:hover {
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            transform: translateY(-2px);
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.3), rgba(153, 51, 255, 0.3));
+        }
+
+        .cyber-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(30deg);
+            transition: all 0.6s ease;
+        }
+
+        .cyber-button:hover::after {
+            left: 120%;
+        }
+
+        .refresh-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), rgba(153, 51, 255, 0.1));
+            border: 1px solid var(--cyber-blue);
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            margin: 1rem auto;
+            width: 40px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .refresh-button:hover {
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.3), rgba(153, 51, 255, 0.3));
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            transform: scale(1.05);
+        }
+
+        .refresh-button i {
+            color: var(--cyber-blue);
+            font-size: 1rem;
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite; /* Reduced duration for performance */
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0); }
+        }
+
+        @media (max-width: 768px) {
+            .grid-cols-1-on-mobile {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 1.75rem;
+            }
+            .cyber-button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            .news-item {
+                padding: 1rem;
+            }
+        }
+
+        .feed-status {
+            font-size: 0.8rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .feed-dot {
+            display: inline-block;
+            height: 8px;
+            width: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .feed-active {
+            background-color: var(--cyber-green);
+            box-shadow: 0 0 5px var(--cyber-green);
+        }
+
+        .feed-loading {
+            background-color: var(--cyber-blue);
+            animation: blink 1s infinite;
+        }
+
+        .feed-error {
+            background-color: #ff3333;
+            box-shadow: 0 0 5px #ff3333;
+        }
+
+        @keyframes blink {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        .cyber-scanner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--cyber-blue), transparent);
+            opacity: 0.6;
+            z-index: 100;
+            animation: scan 2.5s linear infinite; /* Reduced duration for performance */
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+
+        .news-item a:hover {
+            color: var(--cyber-blue);
+            text-decoration: underline;
+        }
+
+        .news-item {
+            font-family: 'Open Sans', sans-serif;
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+        }
+
+        .news-item h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .news-item p.description {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .news-item p.meta {
+            color: var(--text-meta);
+            font-size: 0.75rem;
+        }
+
+        .hypothesis-item h3 {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .hypothesis-item p {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .hypothesis-item .context {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        .footer-text {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
     </style>
 </head>
-<body class="min-h-screen text-gray-100">
+<body class="min-h-screen">
+    <div class="cyber-scanner"></div>
     <div class="container mx-auto px-4 py-8 max-w-7xl">
-        <header class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-white mb-4">CyberGator</h1>
-            <p class="text-gray-400 max-w-2xl mx-auto">
-                Real-time threat intelligence generation based on latest cybersecurity news
-            </p>
-        </header>
+        <!-- CyberGator Page -->
+        <div id="cybergator">
+            <header class="text-center mb-12">
+                <h1 class="text-4xl font-bold mb-4 cyber-glow">CYBER<span class="text-cyan-400">GATOR</span></h1>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    Real-time threat intelligence generation based on latest cybersecurity news
+                </p>
+                <div class="feed-status mt-4">
+                    <span id="feed-status-indicator">
+                        <span class="feed-dot feed-loading"></span>
+                        <span id="feed-status-text">Loading feeds...</span>
+                    </span>
+                </div>
+            </header>
 
-        <!-- News Container -->
-        <div id="news-container" class="grid md:grid-cols-3 gap-4 mb-8"></div>
-        
-        <!-- Generate Button -->
-        <div class="text-center mb-8">
-            <button id="generate-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg">
-                Generate Threat Hunting Hypothesis
-            </button>
+            <div id="news-container" class="grid md:grid-cols-2 lg:grid-cols-3 grid-cols-1 gap-4 mb-8"></div>
             
-            <div id="loading" class="hidden mt-4">
-                <div class="flex items-center justify-center">
-                    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500"></div>
-                    <span class="ml-3 text-blue-300">Analyzing news and generating hypothesis...</span>
+            <div class="text-center mb-12">
+                <button id="generate-button" class="cyber-button pulse">
+                    <i class="fas fa-radiation mr-2"></i> Generate Threat Hunting Hypothesis
+                </button>
+                <div id="loading" class="hidden mt-6">
+                    <div class="flex items-center justify-center">
+                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-400"></div>
+                        <span class="ml-3 text-cyan-400">Analyzing news and generating hypothesis...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="hypothesis-container" class="hidden">
+                <div class="glass-card cyber-border rounded-lg p-6">
+                    <h2 class="text-2xl font-bold text-center text-cyan-400 mb-6 purple-glow">
+                        <i class="fas fa-biohazard mr-2"></i> Threat Hunting Hypotheses
+                    </h2>
+                    <div id="hypothesis-list" class="space-y-6"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Hypothesis Container -->
-        <div id="hypothesis-container" class="hidden">
-            <div class="glass-card p-6 rounded-lg">
-                <h2 class="text-2xl font-bold text-center text-blue-400 mb-6">
-                    Threat Hunting Hypotheses
-                </h2>
-                <div id="hypothesis-list" class="space-y-4"></div>
-            </div>
+        <!-- Refresh Button -->
+        <div class="text-center">
+            <button id="refresh-button" class="refresh-button" aria-label="Refresh News">
+                <i class="fas fa-sync-alt"></i>
+            </button>
         </div>
 
         <!-- Footer -->
         <div class="text-center mt-12 text-gray-400 text-sm">
-            Created by Pratik Goswami<br>
-            <a href="https://www.linkedin.com/in/topratik/" target="_blank" class="text-blue-400 hover:text-blue-300 transition duration-300">
-                Connect on LinkedIn
+            <div class="mb-2 footer-text">[ Created by Pratik Goswami ]</div><br>
+            <a href="https://www.linkedin.com/in/topratik/" target="_blank" class="text-cyan-400 hover:text-cyan-300 transition duration-300">
+                <i class="fab fa-linkedin mr-1"></i> Connect on LinkedIn
             </a>
         </div>
     </div>
 
     <script>
+        // CyberGator Script
         const newsContainer = document.getElementById('news-container');
         const generateButton = document.getElementById('generate-button');
+        const refreshButton = document.getElementById('refresh-button');
         const hypothesisContainer = document.getElementById('hypothesis-container');
         const hypothesisList = document.getElementById('hypothesis-list');
         const loadingElement = document.getElementById('loading');
+        const feedStatusText = document.getElementById('feed-status-text');
+        const feedStatusIndicator = document.getElementById('feed-status-indicator');
         const corsProxy = 'https://api.rss2json.com/v1/api.json?rss_url=';
+
+        // Full list of 20 RSS Feeds (unchanged)
         const rssFeeds = [
             'https://www.bleepingcomputer.com/feed/',
             'https://feeds.feedburner.com/TheHackersNews',
@@ -98,70 +375,176 @@
             'https://www.govinfosecurity.com/rss-feeds',
             'https://www.healthcareinfosecurity.com/rss-feeds'
         ];
-        
+
         let newsArticles = [];
 
+        // Fetch RSS feeds with timeout
         async function fetchRSS(url) {
             try {
-                const response = await fetch(corsProxy + encodeURIComponent(url));
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5-second timeout
+                const response = await fetch(corsProxy + encodeURIComponent(url), { signal: controller.signal });
+                clearTimeout(timeoutId);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
-                return data.items.slice(0, 5).map(item => ({
-                    title: item.title,
-                    link: item.link,
-                    description: item.description,
-                    pubDate: item.pubDate
-                }));
+                if (data.status === 'ok' && data.items) {
+                    return data.items.slice(0, 3).map(item => ({
+                        title: item.title,
+                        link: item.link,
+                        description: item.description,
+                        pubDate: item.pubDate,
+                        source: data.feed.title || url
+                    }));
+                }
+                return [];
             } catch (error) {
                 console.error('Error fetching RSS feed:', error.message);
                 return [];
             }
         }
 
-        function displayNews(newsItems) {
-            newsContainer.innerHTML = '';
-            if (newsItems.length === 0) {
-                newsContainer.innerHTML = '<p class="text-gray-400 text-center">No news articles available at this time.</p>';
-                return;
-            }
-            newsArticles = newsItems;
-            newsItems.forEach(item => {
-                const newsItem = document.createElement('div');
-                newsItem.className = 'news-item bg-gray-800 p-4 rounded-lg shadow-lg hover:bg-gray-700 transition duration-300';
-                newsItem.innerHTML = `
-                    <h3 class="text-lg font-semibold text-blue-300 mb-2">
-                        <a href="${item.link}" target="_blank" class="hover:underline">${item.title}</a>
-                    </h3>
-                    <p class="text-gray-400 text-sm mb-2">${stripHtml(item.description).slice(0, 150)}...</p>
-                    <small class="text-gray-500 text-xs">${new Date(item.pubDate).toLocaleString()}</small>
-                `;
-                newsContainer.appendChild(newsItem);
-            });
-        }
-
+        // Strip HTML from descriptions
         function stripHtml(html) {
             let tmp = document.createElement("DIV");
             tmp.innerHTML = html;
             return tmp.textContent || tmp.innerText || "";
         }
 
+        // Update news (for initial load)
         async function updateNews() {
+            // Check if articles are cached
+            const cachedArticles = sessionStorage.getItem('newsArticles');
+            if (cachedArticles) {
+                newsArticles = JSON.parse(cachedArticles);
+                feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Live Feeds</span>`;
+                newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+                displayNews(newsArticles.slice(0, 15));
+                return;
+            }
+
+            newsContainer.innerHTML = '';
+            newsArticles = [];
+            let successfulFetches = 0;
+
             try {
                 const allNews = await Promise.all(rssFeeds.map(fetchRSS));
                 const flattenedNews = allNews.flat();
                 if (flattenedNews.length === 0) {
                     throw new Error('No articles retrieved from RSS feeds.');
                 }
-                flattenedNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-                displayNews(flattenedNews.slice(0, 15));
+                flattenedNews.forEach(item => {
+                    newsArticles.push(item);
+                });
+                successfulFetches = allNews.filter(arr => arr.length > 0).length;
+
+                // Update feed status
+                if (successfulFetches > 0) {
+                    feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Live Feeds</span>`;
+                } else {
+                    feedStatusIndicator.innerHTML = `<span class="feed-dot feed-error"></span><span id="feed-status-text">Error loading feeds</span>`;
+                }
+
+                // Cache articles
+                sessionStorage.setItem('newsArticles', JSON.stringify(newsArticles));
+
+                // Sort and display news
+                newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+                displayNews(newsArticles.slice(0, 15));
             } catch (error) {
                 console.error('Error updating news:', error.message);
+                feedStatusIndicator.innerHTML = `<span class="feed-dot feed-error"></span><span id="feed-status-text">Error loading feeds</span>`;
                 displayNews([]);
             }
         }
 
+        // Fetch news for today only (refresh button functionality)
+        async function fetchNewsForToday() {
+            // Clear cache to force fresh fetch
+            sessionStorage.removeItem('newsArticles');
+            newsContainer.innerHTML = '';
+            newsArticles = [];
+            let successfulFetches = 0;
+            const today = new Date('2025-04-17'); // Current date as per context
+            const todayString = today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+            try {
+                const allNews = await Promise.all(rssFeeds.map(fetchRSS));
+                const flattenedNews = allNews.flat();
+                if (flattenedNews.length === 0) {
+                    throw new Error('No articles retrieved from RSS feeds.');
+                }
+
+                // Strictly filter articles for today only
+                const todayNews = flattenedNews.filter(item => {
+                    const pubDate = new Date(item.pubDate);
+                    const pubDateString = pubDate.toISOString().split('T')[0];
+                    return pubDateString === todayString;
+                });
+
+                if (todayNews.length === 0) {
+                    throw new Error('No articles found for today.');
+                }
+
+                todayNews.forEach(item => {
+                    newsArticles.push(item);
+                });
+                successfulFetches = todayNews.length > 0 ? 1 : 0;
+
+                // Update feed status
+                if (successfulFetches > 0) {
+                    feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Live Feeds</span>`;
+                } else {
+                    feedStatusIndicator.innerHTML = `<span class="feed-dot feed-error"></span><span id="feed-status-text">No news for today</span>`;
+                }
+
+                // Cache new articles
+                sessionStorage.setItem('newsArticles', JSON.stringify(newsArticles));
+
+                // Sort by publication date (most recent first) and display
+                newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+                displayNews(newsArticles);
+
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (error) {
+                console.error('Error fetching news for today:', error.message);
+                feedStatusIndicator.innerHTML = `<span class="feed-dot feed-error"></span><span id="feed-status-text">No news for today</span>`;
+                displayNews([]);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Display news articles (optimized with document fragment)
+        function displayNews(newsItems) {
+            newsContainer.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+            if (newsItems.length === 0) {
+                const noNews = document.createElement('p');
+                noNews.className = 'text-gray-400 text-center';
+                noNews.textContent = 'No news articles available for today.';
+                fragment.appendChild(noNews);
+                newsContainer.appendChild(fragment);
+                return;
+            }
+            newsItems.forEach(item => {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item p-4 rounded-lg';
+                newsItem.innerHTML = `
+                    <h3 class="mb-2">
+                        <a href="${item.link}" target="_blank" class="hover:text-cyan-300">${item.title}</a>
+                    </h3>
+                    <p class="description mb-2">${stripHtml(item.description).slice(0, 150)}...</p>
+                    <p class="meta">Source: ${item.source}</p>
+                    <p class="meta">Published: ${new Date(item.pubDate).toLocaleString()}</p>
+                `;
+                fragment.appendChild(newsItem);
+            });
+            newsContainer.appendChild(fragment);
+        }
+
+        // Generate threat hunting hypothesis
         function generateThreatHuntingHypothesis() {
             loadingElement.classList.remove('hidden');
             generateButton.disabled = true;
@@ -174,9 +557,10 @@
                 hypothesisContainer.classList.remove('hidden');
                 
                 hypothesisContainer.scrollIntoView({ behavior: 'smooth' });
-            }, 2000);
+            }, 1000);
         }
 
+        // Generate hypotheses from articles (10 hypotheses)
         function generateHypothesisFromArticles(articles) {
             if (articles.length === 0) {
                 return [{
@@ -191,7 +575,7 @@
                         title: article.title,
                         hypothesis: `Hunt for shadow IT exploiting "${article.title}" by monitoring unsanctioned cloud uploads.`,
                         context: `
-                            <ul class="list-disc list-inside text-gray-500">
+                            <ul class="list-disc list-inside">
                                 <li><strong>Unconventional Insight:</strong> Employees might bypass security uploading data related to this on ${new Date(article.pubDate).toLocaleDateString()}.</li>
                                 <li><strong>TTPs:</strong> Data exfiltration (T1041), abuse of cloud services (T1213).</li>
                                 <li><strong>Search:</strong> Look for spikes in cloud traffic not tied to approved apps.</li>
@@ -203,7 +587,7 @@
                         title: article.title,
                         hypothesis: `Investigate if "${article.title}" is a decoy for a larger APT campaign targeting your sector.`,
                         context: `
-                            <ul class="list-disc list-inside text-gray-500">
+                            <ul class="list-disc list-inside">
                                 <li><strong>Unconventional Insight:</strong> Noise from this event on ${new Date(article.pubDate).toLocaleDateString()} could mask stealthier attacks.</li>
                                 <li><strong>TTPs:</strong> Obfuscated files (T1027), C2 (T1071).</li>
                                 <li><strong>Search:</strong> Correlate with low-and-slow traffic patterns.</li>
@@ -215,7 +599,7 @@
                         title: article.title,
                         hypothesis: `Probe for insider threats amplifying "${article.title}" via unauthorized device use.`,
                         context: `
-                            <ul class="list-disc list-inside text-gray-500">
+                            <ul class="list-disc list-inside">
                                 <li><strong>Unconventional Insight:</strong> This incident on ${new Date(article.pubDate).toLocaleDateString()} might inspire rogue insiders.</li>
                                 <li><strong>TTPs:</strong> Physical access (T1200), data theft (T1030).</li>
                                 <li><strong>Search:</strong> Check USB logs or unsanctioned hardware connections.</li>
@@ -227,7 +611,7 @@
                         title: article.title,
                         hypothesis: `Explore if "${article.title}" ties to a supply chain attack via third-party chatter.`,
                         context: `
-                            <ul class="list-disc list-inside text-gray-500">
+                            <ul class="list-disc list-inside">
                                 <li><strong>Unconventional Insight:</strong> Vendor mentions on ${new Date(article.pubDate).toLocaleDateString()} could hint at broader compromise.</li>
                                 <li><strong>TTPs:</strong> Supply chain compromise (T1195), backdoors (T1543).</li>
                                 <li><strong>Search:</strong> Audit vendor-related traffic or software updates.</li>
@@ -239,7 +623,7 @@
                         title: article.title,
                         hypothesis: `Hunt for IoT exploitation linked to "${article.title}" as a botnet precursor.`,
                         context: `
-                            <ul class="list-disc list-inside text-gray-500">
+                            <ul class="list-disc list-inside">
                                 <li><strong>Unconventional Insight:</strong> IoT chatter on ${new Date(article.pubDate).toLocaleDateString()} might signal a buildup.</li>
                                 <li><strong>TTPs:</strong> Brute force (T1110), network sniffing (T1040).</li>
                                 <li><strong>Search:</strong> Monitor IoT device outbound connections.</li>
@@ -251,7 +635,7 @@
                         title: article.title,
                         hypothesis: `Investigate if "${article.title}" masks a zero-day exploit in your tech stack.`,
                         context: `
-                            <ul class="list-disc list-inside text-gray-500">
+                            <ul class="list-disc list-inside">
                                 <li><strong>Unconventional Insight:</strong> This event on ${new Date(article.pubDate).toLocaleDateString()} could be a smokescreen.</li>
                                 <li><strong>TTPs:</strong> Exploitation (T1203), privilege escalation (T1068).</li>
                                 <li><strong>Search:</strong> Look for crashes or unknown processes.</li>
@@ -263,7 +647,7 @@
                         title: article.title,
                         hypothesis: `Probe for ransomware prep tied to "${article.title}" via unusual encryption spikes.`,
                         context: `
-                            <ul class="list-disc list-inside text-gray-500">
+                            <ul class="list-disc list-inside">
                                 <li><strong>Unconventional Insight:</strong> Pre-attack signals on ${new Date(article.pubDate).toLocaleDateString()} might be subtle.</li>
                                 <li><strong>TTPs:</strong> Data encryption (T1486), lateral movement (T1021).</li>
                                 <li><strong>Search:</strong> Detect rapid file changes or shadow copies deletion.</li>
@@ -275,7 +659,7 @@
                         title: article.title,
                         hypothesis: `Hunt for phishing lures mimicking "${article.title}" in your email traffic.`,
                         context: `
-                            <ul class="list-disc list-inside text-gray-500">
+                            <ul class="list-disc list-inside">
                                 <li><strong>Unconventional Insight:</strong> Attackers might weaponize this news from ${new Date(article.pubDate).toLocaleDateString()}.</li>
                                 <li><strong>TTPs:</strong> Spearphishing (T1566.001), credential theft (T1552).</li>
                                 <li><strong>Search:</strong> Filter emails for article keywords or fake domains.</li>
@@ -287,7 +671,7 @@
                         title: article.title,
                         hypothesis: `Investigate if "${article.title}" hints at a cloud breach via misconfig echoes.`,
                         context: `
-                            <ul class="list-disc list-inside text-gray-500">
+                            <ul class="list-disc list-inside">
                                 <li><strong>Unconventional Insight:</strong> Misconfigs reported on ${new Date(article.pubDate).toLocaleDateString()} could ripple to your cloud.</li>
                                 <li><strong>TTPs:</strong> Unauthorized access (T1078), cloud data exposure (T1530).</li>
                                 <li><strong>Search:</strong> Audit cloud logs for public bucket access.</li>
@@ -299,7 +683,7 @@
                         title: article.title,
                         hypothesis: `Explore if "${article.title}" is exploited via social media disinformation campaigns.`,
                         context: `
-                            <ul class="list-disc list-inside text-gray-500">
+                            <ul class="list-disc list-inside">
                                 <li><strong>Unconventional Insight:</strong> News on ${new Date(article.pubDate).toLocaleDateString()} might fuel panic-driven attacks.</li>
                                 <li><strong>TTPs:</strong> Social engineering (T1566), malware distribution (T1204).</li>
                                 <li><strong>Search:</strong> Monitor internal chats for article-related links.</li>
@@ -308,29 +692,33 @@
                         `
                     }
                 ];
-                return creativeIdeas[index];
+                return creativeIdeas[index % creativeIdeas.length];
             });
         }
 
+        // Display hypotheses
         function displayHypothesis(hypotheses) {
             hypothesisList.innerHTML = '';
+            const fragment = document.createDocumentFragment();
             
             hypotheses.forEach((item, index) => {
                 const hypothesisItem = document.createElement('div');
-                hypothesisItem.className = 'bg-gray-800 p-4 rounded-lg';
+                hypothesisItem.className = 'hypothesis-item p-4 rounded-lg bg-gray-800';
                 hypothesisItem.innerHTML = `
-                    <h3 class="text-lg font-bold text-blue-400 mb-2">${index + 1}. ${item.title}</h3>
-                    <p class="text-gray-300 mb-2"><strong>Hypothesis:</strong> ${item.hypothesis}</p>
-                    <div class="text-gray-500"><strong>Threat Context:</strong> ${item.context}</div>
+                    <h3 class="mb-2">${index + 1}. ${item.title}</h3>
+                    <p class="mb-2"><strong>Hypothesis:</strong> ${item.hypothesis}</p>
+                    <div class="context"><strong>Threat Context:</strong> ${item.context}</div>
                 `;
-                hypothesisList.appendChild(hypothesisItem);
+                fragment.appendChild(hypothesisItem);
             });
+            hypothesisList.appendChild(fragment);
         }
 
-        // Event listeners
+        // Event Listeners
         generateButton.addEventListener('click', generateThreatHuntingHypothesis);
+        refreshButton.addEventListener('click', fetchNewsForToday);
 
-        // Initialize the page
+        // Initialize
         updateNews();
     </script>
 </body>
