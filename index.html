@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberGator</title>
+    <title>PratSec</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
@@ -706,7 +706,7 @@
         navCyberGator.addEventListener('click', showCyberGator);
         navOsintGator.addEventListener('click', showOsintGator);
 
-        // CyberGator Script (Unchanged)
+        // CyberGator Script
         const newsContainer = document.getElementById('news-container');
         const generateButton = document.getElementById('generate-button');
         const refreshButton = document.getElementById('refresh-button');
@@ -742,6 +742,17 @@
 
         let newsArticles = [];
 
+        // Function to normalize URLs by removing query parameters
+        function normalizeUrl(url) {
+            try {
+                const urlObj = new URL(url);
+                return `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
+            } catch (error) {
+                console.error('Error normalizing URL:', url, error.message);
+                return url; // Fallback to original URL if parsing fails
+            }
+        }
+
         async function fetchRSS(url) {
             try {
                 const controller = new AbortController();
@@ -756,6 +767,7 @@
                     return data.items.slice(0, 3).map(item => ({
                         title: item.title || 'Untitled',
                         link: item.link || '#',
+                        normalizedLink: normalizeUrl(item.link || '#'), // Add normalized link for deduplication
                         description: item.description || 'No description available.',
                         pubDate: item.pubDate || new Date().toISOString(),
                         source: data.feed.title || url
@@ -763,7 +775,7 @@
                 }
                 return [];
             } catch (error) {
-                console.error('Error fetching RSS feed:', error.message);
+                console.error('Error fetching RSS feed:', url, error.message);
                 return [];
             }
         }
@@ -784,10 +796,41 @@
             }
         }
 
+        // Deduplication function
+        function deduplicateArticles(articles) {
+            const seenLinks = new Set();
+            const seenTitles = new Set();
+            const uniqueArticles = [];
+
+            articles.forEach(item => {
+                const normalizedLink = item.normalizedLink || item.link;
+                const title = item.title.toLowerCase().trim();
+
+                // Check for duplicates by normalized link first, then by title
+                if (!seenLinks.has(normalizedLink) && !seenTitles.has(title)) {
+                    seenLinks.add(normalizedLink);
+                    seenTitles.add(title);
+                    uniqueArticles.push(item);
+                } else {
+                    console.log('Duplicate article skipped:', {
+                        title: item.title,
+                        link: item.link,
+                        source: item.source
+                    });
+                }
+            });
+
+            return uniqueArticles;
+        }
+
         async function updateNews() {
             const cachedArticles = sessionStorage.getItem('newsArticles');
             if (isValidCache(cachedArticles)) {
-                newsArticles = JSON.parse(cachedArticles);
+                let cached = JSON.parse(cachedArticles);
+                // Re-apply deduplication on cached articles to ensure no duplicates
+                cached = deduplicateArticles(cached);
+                sessionStorage.setItem('newsArticles', JSON.stringify(cached));
+                newsArticles = cached;
                 feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Live Feeds</span>`;
                 newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
                 displayNews(newsArticles.slice(0, 15));
@@ -801,12 +844,14 @@
             try {
                 const allNews = await Promise.all(rssFeeds.map(fetchRSS));
                 const flattenedNews = allNews.flat();
+
                 if (flattenedNews.length === 0) {
                     throw new Error('No articles retrieved from RSS feeds.');
                 }
-                flattenedNews.forEach(item => {
-                    newsArticles.push(item);
-                });
+
+                // Deduplicate articles
+                newsArticles = deduplicateArticles(flattenedNews);
+
                 successfulFetches = allNews.filter(arr => arr.length > 0).length;
 
                 if (successfulFetches > 0) {
@@ -834,10 +879,14 @@
             try {
                 const allNews = await Promise.all(rssFeeds.map(fetchRSS));
                 const flattenedNews = allNews.flat();
+
                 if (flattenedNews.length === 0) {
                     const cachedArticles = sessionStorage.getItem('newsArticles');
                     if (isValidCache(cachedArticles)) {
-                        newsArticles = JSON.parse(cachedArticles);
+                        let cached = JSON.parse(cachedArticles);
+                        cached = deduplicateArticles(cached);
+                        sessionStorage.setItem('newsArticles', JSON.stringify(cached));
+                        newsArticles = cached;
                         feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Showing cached feeds</span>`;
                         newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
                         displayNews(newsArticles.slice(0, 15));
@@ -846,9 +895,9 @@
                     throw new Error('No articles retrieved from RSS feeds.');
                 }
 
-                flattenedNews.forEach(item => {
-                    newsArticles.push(item);
-                });
+                // Deduplicate articles
+                newsArticles = deduplicateArticles(flattenedNews);
+
                 successfulFetches = allNews.filter(arr => arr.length > 0).length;
 
                 if (successfulFetches > 0) {
@@ -865,7 +914,10 @@
                 console.error('Error fetching news:', error.message);
                 const cachedArticles = sessionStorage.getItem('newsArticles');
                 if (isValidCache(cachedArticles)) {
-                    newsArticles = JSON.parse(cachedArticles);
+                    let cached = JSON.parse(cachedArticles);
+                    cached = deduplicateArticles(cached);
+                    sessionStorage.setItem('newsArticles', JSON.stringify(cached));
+                    newsArticles = cached;
                     feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Showing cached feeds</span>`;
                     newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
                     displayNews(newsArticles.slice(0, 15));
