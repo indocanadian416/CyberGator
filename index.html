@@ -558,9 +558,9 @@
                         <div class="tool-name">URLScan</div>
                         <div class="tool-desc">URLs</div>
                     </a>
-                    <a class="key" href="https://ipinfo.io" target="_blank" accesskey="i">
+                    <a class="key" href="https://ipinfo.io/" target="_blank" accesskey="i">
                         <div class="letter">I</div>
-                        <div class="tool-name">IPinfo</div>
+                        <div class="tool-name">IPinfo.io</div>
                         <div class="tool-desc">IPs</div>
                     </a>
                     <a class="key" href="https://www.onyphe.io" target="_blank" accesskey="o">
@@ -616,9 +616,9 @@
                         <div class="tool-name">Kaspersky TI</div>
                         <div class="tool-desc">IPs, Hashes</div>
                     </a>
-                    <a class="key" href="https://leakix.net" target="_blank" accesskey="l">
+                    <a class="key" href="https://dnslytics.com/" target="_blank" accesskey="l">
                         <div class="letter">L</div>
-                        <div class="tool-name">LeakIX</div>
+                        <div class="tool-name">DNSlytics</div>
                         <div class="tool-desc">IPs, Domains</div>
                     </a>
                 </div>
@@ -907,7 +907,7 @@
                 }
 
                 sessionStorage.setItem('newsArticles', JSON.stringify(newsArticles));
-                newsArticles.sort((a, bN) => new Date(b.pubDate) - new Date(a.pubDate));
+                newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
                 displayNews(newsArticles.slice(0, 15));
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } catch (error) {
@@ -1149,10 +1149,10 @@
             'f': 'https://en.fofa.info',
             'g': 'https://viz.greynoise.io/query',
             'h': 'https://www.hybrid-analysis.com',
-            'i': 'https://ipinfo.io',
+            'i': 'https://ipinfo.io/',
             'j': 'https://www.joesandbox.com',
             'k': 'https://opentip.kaspersky.com',
-            'l': 'https://leakix.net',
+            'l': 'https://dnslytics.com/',
             'm': 'https://www.maltiverse.com/search',
             'n': 'https://app.netlas.io',
             'o': 'https://www.onyphe.io',
