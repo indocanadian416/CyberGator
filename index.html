@@ -227,23 +227,6 @@
             100% { opacity: 0.3; }
         }
 
-        .cyber-scanner {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(to right, transparent, var(--cyber-blue), transparent);
-            opacity: 0.6;
-            z-index: 100;
-            animation: scan 3s linear infinite;
-        }
-
-        @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100vh); }
-        }
-
         .news-item a:hover {
             color: var(--cyber-blue);
             text-decoration: underline;
@@ -464,7 +447,6 @@
     </style>
 </head>
 <body class="min-h-screen">
-    <div class="cyber-scanner"></div>
     <div class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Navigation Bar -->
         <div class="nav-bar">
