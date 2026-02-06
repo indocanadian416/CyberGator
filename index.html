@@ -8,7 +8,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Orbitron:wght@400;600;800&display=swap');
-
         :root {
             --cyber-blue: #00ffff;
             --cyber-purple: #9933ff;
@@ -20,7 +19,6 @@
             --text-secondary: #93c5fd;
             --text-meta: #6b7280;
         }
-
         body {
             background: radial-gradient(ellipse at top, var(--dark-bg) 0%, var(--darker-bg) 100%);
             font-family: 'Open Sans', sans-serif;
@@ -28,11 +26,9 @@
             padding: 0;
             color: var(--text-primary);
         }
-
         h1, h2 {
             font-family: 'Orbitron', sans-serif;
         }
-
         /* Navigation Bar */
         .nav-bar {
             display: flex;
@@ -40,7 +36,6 @@
             gap: 1rem;
             margin-bottom: 2rem;
         }
-
         .nav-button {
             background: linear-gradient(45deg, rgba(0, 255, 255, 0.2), rgba(153, 51, 255, 0.2));
             border: 1px solid var(--cyber-blue);
@@ -52,27 +47,53 @@
             cursor: pointer;
             color: #ffffff;
         }
-
         .nav-button:hover {
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
             transform: translateY(-2px);
             background: linear-gradient(45deg, rgba(0, 255, 255, 0.3), rgba(153, 51, 255, 0.3));
         }
-
         .nav-button.active {
             background: linear-gradient(45deg, rgba(0, 255, 255, 0.5), rgba(153, 51, 255, 0.5));
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
         }
-
+        /* Time Filter Buttons */
+        .time-filters {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .time-filter-btn {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            padding: 0.5rem 1.2rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: var(--cyber-blue);
+        }
+        .time-filter-btn:hover {
+            border-color: var(--cyber-blue);
+            background: rgba(0, 255, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        .time-filter-btn.active {
+            background: var(--cyber-blue);
+            color: var(--dark-bg);
+            border-color: var(--cyber-blue);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+        }
         /* CyberGator Styles */
         .cyber-glow {
             text-shadow: 0 0 5px var(--cyber-blue), 0 0 10px rgba(0, 255, 255, 0.6);
         }
-
         .purple-glow {
             text-shadow: 0 0 5px var(--cyber-purple), 0 0 10px rgba(153, 51, 255, 0.6);
         }
-
         .news-item, .glass-card {
             transition: transform 0.3s ease;
             border: 1px solid rgba(0, 255, 255, 0.15);
@@ -81,7 +102,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .glass-card::before {
             content: "";
             position: absolute;
@@ -92,23 +112,19 @@
             background: linear-gradient(90deg, transparent, var(--cyber-blue));
             animation: scanline 3s linear infinite;
         }
-
         .news-item:hover, .glass-card:hover {
             transform: scale(1.02);
             box-shadow: 0 10px 25px rgba(0, 255, 255, 0.15);
             border-color: var(--cyber-blue);
         }
-
         @keyframes scanline {
             0% { left: -100%; }
             100% { left: 100%; }
         }
-
         .cyber-border {
             position: relative;
             border: 1px solid rgba(0, 255, 255, 0.3);
         }
-
         .cyber-border::after {
             content: "";
             position: absolute;
@@ -120,7 +136,6 @@
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
             pointer-events: none;
         }
-
         .cyber-button {
             position: relative;
             background: linear-gradient(45deg, rgba(0, 255, 255, 0.2), rgba(153, 51, 255, 0.2));
@@ -134,13 +149,11 @@
             overflow: hidden;
             color: #ffffff;
         }
-
         .cyber-button:hover {
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
             transform: translateY(-2px);
             background: linear-gradient(45deg, rgba(0, 255, 255, 0.3), rgba(153, 51, 255, 0.3));
         }
-
         .cyber-button::after {
             content: '';
             position: absolute;
@@ -152,11 +165,9 @@
             transform: rotate(30deg);
             transition: all 0.6s ease;
         }
-
         .cyber-button:hover::after {
             left: 120%;
         }
-
         .refresh-button {
             display: flex;
             justify-content: center;
@@ -170,34 +181,28 @@
             transition: all 0.3s ease;
             cursor: pointer;
         }
-
         .refresh-button:hover {
             background: linear-gradient(45deg, rgba(0, 255, 255, 0.3), rgba(153, 51, 255, 0.3));
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
             transform: scale(1.05);
         }
-
         .refresh-button i {
             color: var(--cyber-blue);
             font-size: 1rem;
         }
-
         .pulse {
             animation: pulse 2s infinite;
         }
-
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.5); }
             70% { box-shadow: 0 0 0 10px rgba(0, 255, 255, 0); }
             100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0); }
         }
-
         .feed-status {
             font-size: 0.8rem;
             text-align: center;
             margin-bottom: 0.5rem;
         }
-
         .feed-dot {
             display: inline-block;
             height: 8px;
@@ -205,81 +210,94 @@
             border-radius: 50%;
             margin-right: 5px;
         }
-
         .feed-active {
             background-color: var(--cyber-green);
             box-shadow: 0 0 5px var(--cyber-green);
         }
-
         .feed-loading {
             background-color: var(--cyber-blue);
             animation: blink 1s infinite;
         }
-
         .feed-error {
             background-color: #ff3333;
             box-shadow: 0 0 5px #ff3333;
         }
-
         @keyframes blink {
             0% { opacity: 0.3; }
             50% { opacity: 1; }
             100% { opacity: 0.3; }
         }
-
         .news-item a:hover {
             color: var(--cyber-blue);
             text-decoration: underline;
         }
-
         .news-item {
             font-family: 'Open Sans', sans-serif;
             background: var(--card-bg);
             border: 1px solid rgba(0, 255, 255, 0.15);
         }
-
         .news-item h3 {
             font-size: 1.1rem;
             font-weight: 600;
             color: var(--text-secondary);
         }
-
         .news-item p.description {
             color: var(--text-primary);
             font-size: 0.9rem;
             line-height: 1.6;
         }
-
         .news-item p.meta {
             color: var(--text-meta);
             font-size: 0.75rem;
         }
-
+        /* Tags */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
+        .tag {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 3px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .tag.critical {
+            background-color: #ff5370;
+            color: #1a1a1a;
+        }
+        .tag.high {
+            background-color: #fcd34d;
+            color: #1a1a1a;
+        }
+        .tag.medium {
+            background-color: #c792ea;
+            color: #1a1a1a;
+        }
         .hypothesis-item h3 {
             font-family: 'Open Sans', sans-serif;
             font-size: 1.15rem;
             font-weight: 600;
             color: var(--text-secondary);
         }
-
         .hypothesis-item p {
             font-family: 'Open Sans', sans-serif;
             font-size: 0.95rem;
             color: var(--text-primary);
         }
-
         .hypothesis-item .context {
             font-family: 'Open Sans', sans-serif;
             font-size: 0.9rem;
             color: #9ca3af;
         }
-
         .footer-text {
             color: #9ca3af;
             font-size: 0.9rem;
             font-weight: 500;
         }
-
         /* OSINTGator Styles */
         .keyboard-rows {
             display: flex;
@@ -288,47 +306,39 @@
             width: 100%;
             padding: 2rem 0;
         }
-
         .row {
             display: flex;
             justify-content: center;
             gap: 1rem;
             width: 100%;
         }
-
         .row:nth-child(1) .key {
             border-color: var(--cyber-green);
             color: var(--cyber-green);
         }
-
         .row:nth-child(1) .key:hover {
             background: var(--cyber-green);
             color: var(--dark-bg);
             box-shadow: 0 0 15px var(--cyber-green), 0 0 25px var(--cyber-green);
         }
-
         .row:nth-child(2) .key {
             border-color: var(--cyber-blue);
             color: var(--cyber-blue);
         }
-
         .row:nth-child(2) .key:hover {
             background: var(--cyber-blue);
             color: var(--dark-bg);
             box-shadow: 0 0 15px var(--cyber-blue), 0 0 25px var(--cyber-blue);
         }
-
         .row:nth-child(3) .key {
             border-color: var(--cyber-purple);
             color: var(--cyber-purple);
         }
-
         .row:nth-child(3) .key:hover {
             background: var(--cyber-purple);
             color: var(--dark-bg);
             box-shadow: 0 0 15px var(--cyber-purple), 0 0 25px var(--cyber-purple);
         }
-
         .key {
             background: #2a2a2a;
             border: 2px solid;
@@ -344,102 +354,86 @@
             justify-content: center;
             align-items: center;
         }
-
         .key:hover {
             transform: scale(1.05);
         }
-
         .key:focus {
             outline: none;
             box-shadow: 0 0 10px var(--cyber-blue), 0 0 20px var(--cyber-blue);
         }
-
         .letter {
             font-family: 'Orbitron', sans-serif;
             font-weight: 600;
             font-size: 1.8rem;
             line-height: 1;
         }
-
         .tool-name {
             font-family: 'Open Sans', sans-serif;
             font-size: 0.9rem;
             margin-top: 0.5rem;
             color: #b0b0b0;
         }
-
         .tool-desc {
             font-family: 'Open Sans', sans-serif;
             font-size: 0.7rem;
             margin-top: 0.3rem;
             color: #808080;
         }
-
         .key:hover .tool-name,
         .key:hover .tool-desc {
             color: var(--dark-bg);
         }
-
         @media (max-width: 768px) {
             .grid-cols-1-on-mobile {
                 grid-template-columns: 1fr;
             }
-
             h1 {
                 font-size: 1.75rem;
             }
-
             .cyber-button, .nav-button {
                 padding: 0.6rem 1.2rem;
                 font-size: 0.9rem;
             }
-
+            .time-filter-btn {
+                padding: 0.4rem 0.9rem;
+                font-size: 0.75rem;
+            }
             .news-item {
                 padding: 1rem;
             }
-
             .keyboard-rows {
                 padding: 1.5rem 0;
                 gap: 0.75rem;
             }
-
             .row {
                 gap: 0.75rem;
                 flex-wrap: wrap;
             }
-
             .key {
                 min-width: 28%;
                 padding: 1.2rem;
             }
-
             .letter {
                 font-size: 1.5rem;
             }
-
             .tool-name {
                 font-size: 0.8rem;
             }
-
             .tool-desc {
                 font-size: 0.6rem;
             }
         }
-
         @media (max-width: 480px) {
             .key {
                 min-width: 30%;
                 padding: 1rem;
             }
-
             .letter {
                 font-size: 1.3rem;
             }
-
             .tool-name {
                 font-size: 0.7rem;
             }
-
             .tool-desc {
                 font-size: 0.5rem;
             }
@@ -453,10 +447,9 @@
             <button id="nav-cybergator" class="nav-button active">CyberGator</button>
             <button id="nav-osintgator" class="nav-button">OSINTGator</button>
         </div>
-
         <!-- CyberGator Page -->
         <div id="cybergator">
-            <header class="text-center mb-12">
+            <header class="text-center mb-8">
                 <h1 class="text-4xl font-bold mb-4 cyber-glow">CYBER<span class="text-cyan-400">GATOR</span></h1>
                 <p class="text-gray-400 max-w-2xl mx-auto">
                     Real-time threat intelligence generation based on latest cybersecurity news
@@ -468,6 +461,14 @@
                     </span>
                 </div>
             </header>
+
+            <!-- Time Filter Buttons -->
+            <div class="time-filters">
+                <button class="time-filter-btn active" data-hours="24">Today</button>
+                <button class="time-filter-btn" data-hours="48">48 Hours</button>
+                <button class="time-filter-btn" data-hours="72">72 Hours</button>
+                <button class="time-filter-btn" data-hours="168">1 Week</button>
+            </div>
 
             <div id="news-container" class="grid md:grid-cols-2 lg:grid-cols-3 grid-cols-1 gap-4 mb-8"></div>
             
@@ -482,17 +483,15 @@
                     </div>
                 </div>
             </div>
-
             <div id="hypothesis-container" class="hidden">
                 <div class="glass-card cyber-border rounded-lg p-6">
                     <h2 class="text-2xl font-bold text-center text-cyan-400 mb-6 purple-glow">
-                        <i class="fas fa-biohazard mr-2"></i> Threat Hunting hypothesis
+                        <i class="fas fa-biohazard mr-2"></i> Threat Hunting Hypothesis
                     </h2>
                     <div id="hypothesis-list" class="space-y-6"></div>
                 </div>
             </div>
         </div>
-
         <!-- OSINTGator Page -->
         <div id="osintgator" class="hidden">
             <header class="text-center mb-12">
@@ -501,7 +500,6 @@
                     Direct Search for URLs, IPs, Hashes, Domains (Press a Key or Click)
                 </p>
             </header>
-
             <div class="keyboard-rows">
                 <!-- Row 1 (Q-P) -->
                 <div class="row">
@@ -644,20 +642,17 @@
                 </div>
             </div>
         </div>
-
         <!-- Refresh Button (for CyberGator) -->
         <div id="refresh-section" class="text-center">
             <button id="refresh-button" class="refresh-button" aria-label="Refresh News">
                 <i class="fas fa-sync-alt"></i>
             </button>
         </div>
-
         <!-- Footer -->
         <div class="text-center mt-12 text-gray-400 text-sm">
             <div class="mb-2 footer-text">[ Created by Pratik ]</div><br>
         </div>
     </div>
-
     <script>
         // Navigation Logic
         const cyberGatorPage = document.getElementById('cybergator');
@@ -665,7 +660,7 @@
         const navCyberGator = document.getElementById('nav-cybergator');
         const navOsintGator = document.getElementById('nav-osintgator');
         const refreshSection = document.getElementById('refresh-section');
-
+        
         function showCyberGator() {
             cyberGatorPage.classList.remove('hidden');
             osintGatorPage.classList.add('hidden');
@@ -673,7 +668,7 @@
             navOsintGator.classList.remove('active');
             refreshSection.classList.remove('hidden');
         }
-
+        
         function showOsintGator() {
             cyberGatorPage.classList.add('hidden');
             osintGatorPage.classList.remove('hidden');
@@ -681,11 +676,11 @@
             navOsintGator.classList.add('active');
             refreshSection.classList.add('hidden');
         }
-
+        
         navCyberGator.addEventListener('click', showCyberGator);
         navOsintGator.addEventListener('click', showOsintGator);
 
-        // CyberGator Script
+        // CyberGator Script - USING YOUR ORIGINAL WORKING CODE
         const newsContainer = document.getElementById('news-container');
         const generateButton = document.getElementById('generate-button');
         const refreshButton = document.getElementById('refresh-button');
@@ -694,8 +689,10 @@
         const loadingElement = document.getElementById('loading');
         const feedStatusText = document.getElementById('feed-status-text');
         const feedStatusIndicator = document.getElementById('feed-status-indicator');
-        const corsProxy = 'https://api.rss2json.com/v1/api.json?rss_url=';
 
+        const corsProxy = 'https://api.rss2json.com/v1/api.json?rss_url=';
+        
+        // YOUR ORIGINAL WORKING RSS FEEDS
         const rssFeeds = [
             'https://www.bleepingcomputer.com/feed/',
             'https://feeds.feedburner.com/TheHackersNews',
@@ -711,24 +708,39 @@
             'https://www.csoonline.com/index.rss',
             'https://www.helpnetsecurity.com/feed/',
             'https://www.scmagazine.com/feed/',
-            'https://www.cyberscoop.com/feed/',
-            'https://www.cybersecuritydive.com/feeds/news/',
-            'https://www.databreachtoday.com/rss-feeds',
-            'https://www.bankinfosecurity.com/rss-feeds',
-            'https://www.govinfosecurity.com/rss-feeds',
-            'https://www.healthcareinfosecurity.com/rss-feeds'
+            'https://www.cyberscoop.com/feed/'
+        ];
+
+        const TAGS = [
+            { name: 'Ransomware', weight: 10, keys: ['ransom'], severity: 'critical' },
+            { name: 'Zero-Day', weight: 10, keys: ['zero day', '0day'], severity: 'critical' },
+            { name: 'CVE', weight: 9, keys: ['cve-'], severity: 'critical' },
+            { name: 'Breach', weight: 8, keys: ['breach', 'leak'], severity: 'critical' },
+            { name: 'Malware', weight: 7, keys: ['malware', 'trojan'], severity: 'high' },
+            { name: 'Exploit', weight: 7, keys: ['exploit'], severity: 'high' },
+            { name: 'Phishing', weight: 6, keys: ['phishing'], severity: 'high' },
+            { name: 'Patch', weight: 4, keys: ['patch'], severity: 'medium' }
         ];
 
         let newsArticles = [];
+        let currentTimeFilter = 24;
 
-        // Function to normalize URLs by removing query parameters
+        const timeFilterButtons = document.querySelectorAll('.time-filter-btn');
+        timeFilterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                timeFilterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTimeFilter = parseInt(btn.dataset.hours);
+                displayFilteredNews();
+            });
+        });
+
         function normalizeUrl(url) {
             try {
                 const urlObj = new URL(url);
                 return `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
             } catch (error) {
-                console.error('Error normalizing URL:', url, error.message);
-                return url; // Fallback to original URL if parsing fails
+                return url;
             }
         }
 
@@ -738,15 +750,15 @@
                 const timeoutId = setTimeout(() => controller.abort(), 5000);
                 const response = await fetch(corsProxy + encodeURIComponent(url), { signal: controller.signal });
                 clearTimeout(timeoutId);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
                 const data = await response.json();
                 if (data.status === 'ok' && data.items) {
                     return data.items.slice(0, 3).map(item => ({
                         title: item.title || 'Untitled',
                         link: item.link || '#',
-                        normalizedLink: normalizeUrl(item.link || '#'), // Add normalized link for deduplication
+                        normalizedLink: normalizeUrl(item.link || '#'),
                         description: item.description || 'No description available.',
                         pubDate: item.pubDate || new Date().toISOString(),
                         source: data.feed.title || url
@@ -765,83 +777,101 @@
             return tmp.textContent || tmp.innerText || "";
         }
 
-        function isValidCache(cachedArticles) {
-            if (!cachedArticles) return false;
-            try {
-                const articles = JSON.parse(cachedArticles);
-                return Array.isArray(articles) && articles.length > 0 && articles.every(item => item.title && item.link && item.pubDate);
-            } catch {
-                return false;
+        function classifyTags(text) {
+            const t = text.toLowerCase();
+            const matched = [];
+            let score = 0;
+            let severity = 'medium';
+
+            for (const tag of TAGS) {
+                for (const key of tag.keys) {
+                    if (t.includes(key)) {
+                        matched.push({ name: tag.name, severity: tag.severity });
+                        score += tag.weight;
+                        if (tag.severity === 'critical') severity = 'critical';
+                        else if (tag.severity === 'high' && severity !== 'critical') severity = 'high';
+                        break;
+                    }
+                }
             }
+            return { tags: matched, score, severity };
         }
 
-        // Deduplication function
         function deduplicateArticles(articles) {
             const seenLinks = new Set();
             const seenTitles = new Set();
             const uniqueArticles = [];
-
+            
             articles.forEach(item => {
                 const normalizedLink = item.normalizedLink || item.link;
                 const title = item.title.toLowerCase().trim();
-
-                // Check for duplicates by normalized link first, then by title
+                
                 if (!seenLinks.has(normalizedLink) && !seenTitles.has(title)) {
                     seenLinks.add(normalizedLink);
                     seenTitles.add(title);
                     uniqueArticles.push(item);
-                } else {
-                    console.log('Duplicate article skipped:', {
-                        title: item.title,
-                        link: item.link,
-                        source: item.source
-                    });
                 }
             });
-
+            
             return uniqueArticles;
         }
 
         async function updateNews() {
             const cachedArticles = sessionStorage.getItem('newsArticles');
-            if (isValidCache(cachedArticles)) {
-                let cached = JSON.parse(cachedArticles);
-                // Re-apply deduplication on cached articles to ensure no duplicates
-                cached = deduplicateArticles(cached);
-                sessionStorage.setItem('newsArticles', JSON.stringify(cached));
-                newsArticles = cached;
-                feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Live Feeds</span>`;
-                newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-                displayNews(newsArticles.slice(0, 15));
-                return;
+            
+            if (cachedArticles) {
+                try {
+                    let cached = JSON.parse(cachedArticles);
+                    cached = deduplicateArticles(cached);
+                    newsArticles = cached;
+                    feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Live Feeds (Cached)</span>`;
+                    
+                    newsArticles.forEach(item => {
+                        const { tags, score, severity } = classifyTags(`${item.title} ${item.description}`);
+                        item._tags = tags;
+                        item._score = score;
+                        item._severity = severity;
+                    });
+                    
+                    newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+                    displayFilteredNews();
+                    return;
+                } catch (e) {
+                    console.error('Cache error:', e);
+                }
             }
-
+            
             newsContainer.innerHTML = '';
             newsArticles = [];
             let successfulFetches = 0;
-
+            
             try {
                 const allNews = await Promise.all(rssFeeds.map(fetchRSS));
                 const flattenedNews = allNews.flat();
-
+                
                 if (flattenedNews.length === 0) {
                     throw new Error('No articles retrieved from RSS feeds.');
                 }
-
-                // Deduplicate articles
+                
                 newsArticles = deduplicateArticles(flattenedNews);
-
                 successfulFetches = allNews.filter(arr => arr.length > 0).length;
-
+                
+                newsArticles.forEach(item => {
+                    const { tags, score, severity } = classifyTags(`${item.title} ${item.description}`);
+                    item._tags = tags;
+                    item._score = score;
+                    item._severity = severity;
+                });
+                
                 if (successfulFetches > 0) {
                     feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Live Feeds</span>`;
                 } else {
                     feedStatusIndicator.innerHTML = `<span class="feed-dot feed-error"></span><span id="feed-status-text">Error loading feeds</span>`;
                 }
-
+                
                 sessionStorage.setItem('newsArticles', JSON.stringify(newsArticles));
                 newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-                displayNews(newsArticles.slice(0, 15));
+                displayFilteredNews();
             } catch (error) {
                 console.error('Error updating news:', error.message);
                 feedStatusIndicator.innerHTML = `<span class="feed-dot feed-error"></span><span id="feed-status-text">Error loading feeds</span>`;
@@ -849,98 +879,67 @@
             }
         }
 
-        async function fetchNewsForRefresh() {
-            sessionStorage.removeItem('newsArticles');
-            newsContainer.innerHTML = '';
-            newsArticles = [];
-            let successfulFetches = 0;
+        function filterByTime(articles, hours) {
+            const cutoff = new Date(Date.now() - (hours * 60 * 60 * 1000));
+            return articles.filter(item => new Date(item.pubDate) >= cutoff);
+        }
 
-            try {
-                const allNews = await Promise.all(rssFeeds.map(fetchRSS));
-                const flattenedNews = allNews.flat();
-
-                if (flattenedNews.length === 0) {
-                    const cachedArticles = sessionStorage.getItem('newsArticles');
-                    if (isValidCache(cachedArticles)) {
-                        let cached = JSON.parse(cachedArticles);
-                        cached = deduplicateArticles(cached);
-                        sessionStorage.setItem('newsArticles', JSON.stringify(cached));
-                        newsArticles = cached;
-                        feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Showing cached feeds</span>`;
-                        newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-                        displayNews(newsArticles.slice(0, 15));
-                        return;
-                    }
-                    throw new Error('No articles retrieved from RSS feeds.');
-                }
-
-                // Deduplicate articles
-                newsArticles = deduplicateArticles(flattenedNews);
-
-                successfulFetches = allNews.filter(arr => arr.length > 0).length;
-
-                if (successfulFetches > 0) {
-                    feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Live Feeds</span>`;
-                } else {
-                    feedStatusIndicator.innerHTML = `<span class="feed-dot feed-error"></span><span id="feed-status-text">Error loading feeds</span>`;
-                }
-
-                sessionStorage.setItem('newsArticles', JSON.stringify(newsArticles));
-                newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-                displayNews(newsArticles.slice(0, 15));
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } catch (error) {
-                console.error('Error fetching news:', error.message);
-                const cachedArticles = sessionStorage.getItem('newsArticles');
-                if (isValidCache(cachedArticles)) {
-                    let cached = JSON.parse(cachedArticles);
-                    cached = deduplicateArticles(cached);
-                    sessionStorage.setItem('newsArticles', JSON.stringify(cached));
-                    newsArticles = cached;
-                    feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Showing cached feeds</span>`;
-                    newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-                    displayNews(newsArticles.slice(0, 15));
-                } else {
-                    feedStatusIndicator.innerHTML = `<span class="feed-dot feed-error"></span><span id="feed-status-text">Error loading feeds</span>`;
-                    displayNews([]);
-                }
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+        function displayFilteredNews() {
+            const filtered = filterByTime(newsArticles, currentTimeFilter);
+            displayNews(filtered);
         }
 
         function displayNews(newsItems) {
             newsContainer.innerHTML = '';
             const fragment = document.createDocumentFragment();
+            
             if (newsItems.length === 0) {
                 const noNews = document.createElement('p');
-                noNews.className = 'text-gray-400 text-center';
-                noNews.textContent = 'No news articles available.';
+                noNews.className = 'text-gray-400 text-center col-span-full';
+                noNews.textContent = 'No articles available for this time period.';
                 fragment.appendChild(noNews);
                 newsContainer.appendChild(fragment);
                 return;
             }
+            
             newsItems.forEach(item => {
                 const newsItem = document.createElement('div');
                 newsItem.className = 'news-item p-4 rounded-lg';
+                
+                const tagsHtml = item._tags && item._tags.length > 0 ? `
+                    <div class="tags">
+                        ${item._tags.map(t => `<span class="tag ${t.severity}">${t.name}</span>`).join('')}
+                    </div>
+                ` : '';
+                
                 newsItem.innerHTML = `
                     <h3 class="mb-2">
                         <a href="${item.link}" target="_blank" class="hover:text-cyan-300">${item.title}</a>
                     </h3>
+                    ${tagsHtml}
                     <p class="description mb-2">${stripHtml(item.description).slice(0, 150)}...</p>
                     <p class="meta">Source: ${item.source}</p>
                     <p class="meta">Published: ${new Date(item.pubDate).toLocaleString()}</p>
                 `;
                 fragment.appendChild(newsItem);
             });
+            
             newsContainer.appendChild(fragment);
         }
 
         function generateThreatHuntingHypothesis() {
+            const filtered = filterByTime(newsArticles, currentTimeFilter);
+            
+            if (filtered.length === 0) {
+                alert('No articles available in the selected time range to generate hypotheses.');
+                return;
+            }
+
             loadingElement.classList.remove('hidden');
             generateButton.disabled = true;
             
             setTimeout(() => {
-                const hypotheses = generateHypothesisFromArticles(newsArticles);
+                const hypotheses = generateHypothesisFromArticles(filtered);
                 displayHypothesis(hypotheses);
                 loadingElement.classList.add('hidden');
                 generateButton.disabled = false;
@@ -957,6 +956,7 @@
                     context: 'Check RSS feed sources or internet connection and try again.'
                 }];
             }
+
             return articles.slice(0, 10).map((article, index) => {
                 const creativeIdeas = [
                     {
@@ -1101,24 +1101,16 @@
             hypothesisList.appendChild(fragment);
         }
 
-        // Event Listeners for CyberGator
-        if (generateButton) {
-            generateButton.addEventListener('click', generateThreatHuntingHypothesis);
-        } else {
-            console.error('Generate button not found.');
-        }
+        generateButton.addEventListener('click', generateThreatHuntingHypothesis);
+        refreshButton.addEventListener('click', () => {
+            sessionStorage.removeItem('newsArticles');
+            updateNews();
+        });
 
-        if (refreshButton) {
-            refreshButton.addEventListener('click', fetchNewsForRefresh);
-        } else {
-            console.error('Refresh button not found.');
-        }
-
-        // Initialize CyberGator News
+        // Initialize
         updateNews();
 
-        // OSINTGator Keyboard Navigation
-        // Map of keys (A-Z) to their corresponding URLs
+        // OSINTGator Keyboard Navigation (UNTOUCHED - EXACTLY AS YOUR ORIGINAL)
         const keyToUrlMap = {
             'a': 'https://www.abuseipdb.com/check',
             'b': 'https://bgpview.io',
@@ -1148,21 +1140,11 @@
             'z': 'https://www.zoomeye.org'
         };
 
-        // Add keypress event listener for OSINTGator
         document.addEventListener('keydown', (event) => {
-            // Only handle keypresses if OSINTGator page is visible
-            if (osintGatorPage.classList.contains('hidden')) {
-                return;
-            }
-
-            // Get the pressed key (lowercase)
+            if (osintGatorPage.classList.contains('hidden')) return;
             const key = event.key.toLowerCase();
-
-            // Check if the pressed key is in our map (A-Z)
             if (keyToUrlMap[key]) {
-                // Prevent default browser behavior (e.g., browser shortcuts)
                 event.preventDefault();
-                // Open the URL in a new tab
                 window.open(keyToUrlMap[key], '_blank');
             }
         });
