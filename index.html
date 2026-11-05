@@ -680,31 +680,56 @@
         navCyberGator.addEventListener('click', showCyberGator);
         navOsintGator.addEventListener('click', showOsintGator);
 
-        // CyberGator Script - USING YOUR ORIGINAL WORKING CODE
+        // ================= CyberGator Script =================
         const newsContainer = document.getElementById('news-container');
         const generateButton = document.getElementById('generate-button');
         const refreshButton = document.getElementById('refresh-button');
         const hypothesisContainer = document.getElementById('hypothesis-container');
         const hypothesisList = document.getElementById('hypothesis-list');
         const loadingElement = document.getElementById('loading');
-        const feedStatusText = document.getElementById('feed-status-text');
         const feedStatusIndicator = document.getElementById('feed-status-indicator');
 
-        const corsProxy = 'https://api.allorigins.win/raw?url=';
-        
-        
- const rssFeeds = [
-    'https://www.bleepingcomputer.com/feed/',
-    'https://feeds.feedburner.com/TheHackersNews',
-    'https://www.darkreading.com/rss.xml',
-    'https://krebsonsecurity.com/feed/',
-    'https://www.securityweek.com/feed/',
-    'https://www.helpnetsecurity.com/feed/'
-];
+        // Multiple CORS proxies: if one is down/rate-limited, the next one is tried automatically.
+        const corsProxies = [
+            { name: 'allorigins-raw',  build: u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u) },
+            { name: 'corsproxy.io',    build: u => 'https://corsproxy.io/?url=' + encodeURIComponent(u) },
+            { name: 'codetabs',        build: u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u) },
+            { name: 'allorigins-json', build: u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u), json: true }
+        ];
+        let preferredProxy = 0; // remembers the last proxy that worked
+
+        const rssFeeds = [
+            // Original feeds
+            'https://www.bleepingcomputer.com/feed/',
+            'https://feeds.feedburner.com/TheHackersNews',
+            'https://www.darkreading.com/rss.xml',
+            'https://krebsonsecurity.com/feed/',
+            'https://www.securityweek.com/feed/',
+            'https://www.helpnetsecurity.com/feed/',
+            // Requested feeds
+            'https://radar.cloudflare.com/security/zero-wire/rss',
+            'https://www.wiz.io/feed/rss.xml',
+            // Additional critical cybersecurity feeds
+            'https://therecord.media/feed',
+            'https://securityaffairs.com/feed',
+            'https://cyberscoop.com/feed/',
+            'https://www.infosecurity-magazine.com/rss/news/',
+            'https://www.theregister.com/security/headlines.atom',
+            'https://isc.sans.edu/rssfeed_full.xml',
+            'https://www.cisa.gov/cybersecurity-advisories/all.xml',
+            'https://blog.talosintelligence.com/rss/',
+            'https://unit42.paloaltonetworks.com/feed/'
+        ];
+
+        const MAX_ITEMS_PER_FEED = 25;     // was 3 – the main reason too few articles showed
+        const FETCH_TIMEOUT_MS = 12000;
+        const MAX_CONCURRENT_FEEDS = 6;    // avoids getting rate-limited by the free proxies
+        const CACHE_KEY = 'cybergator_news_v2';
+        const CACHE_TTL_MS = 15 * 60 * 1000; // cache expires after 15 minutes
 
         const TAGS = [
             { name: 'Ransomware', weight: 10, keys: ['ransom'], severity: 'critical' },
-            { name: 'Zero-Day', weight: 10, keys: ['zero day', '0day'], severity: 'critical' },
+            { name: 'Zero-Day', weight: 10, keys: ['zero day', 'zero-day', '0day', '0-day'], severity: 'critical' },
             { name: 'CVE', weight: 9, keys: ['cve-'], severity: 'critical' },
             { name: 'Breach', weight: 8, keys: ['breach', 'leak'], severity: 'critical' },
             { name: 'Malware', weight: 7, keys: ['malware', 'trojan'], severity: 'high' },
@@ -715,6 +740,8 @@
 
         let newsArticles = [];
         let currentTimeFilter = 24;
+        let isLoading = false;
+        let loadId = 0;
 
         const timeFilterButtons = document.querySelectorAll('.time-filter-btn');
         timeFilterButtons.forEach(btn => {
@@ -726,6 +753,25 @@
             });
         });
 
+        // ---------- Helpers ----------
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function safeUrl(url) {
+            try {
+                const u = new URL(String(url).trim());
+                return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : '#';
+            } catch (e) {
+                return '#';
+            }
+        }
+
         function normalizeUrl(url) {
             try {
                 const urlObj = new URL(url);
@@ -735,90 +781,143 @@
             }
         }
 
-        async function fetchRSS(url) {
-    try {
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(
-            () => controller.abort(),
-            15000
-        );
-
-        const response = await fetch(
-            corsProxy + encodeURIComponent(url),
-            {
-                signal: controller.signal
-            }
-        );
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-
-        const xmlText = await response.text();
-
-        const parser = new DOMParser();
-
-        const xml = parser.parseFromString(
-            xmlText,
-            "text/xml"
-        );
-
-        const items = xml.querySelectorAll("item");
-
-        return Array.from(items)
-            .slice(0, 3)
-            .map(item => ({
-
-                title:
-                    item.querySelector("title")
-                        ?.textContent ||
-                    "Untitled",
-
-                link:
-                    item.querySelector("link")
-                        ?.textContent ||
-                    "#",
-
-                normalizedLink: normalizeUrl(
-                    item.querySelector("link")
-                        ?.textContent || "#"
-                ),
-
-                description:
-                    item.querySelector("description")
-                        ?.textContent ||
-                    "No description available",
-
-                pubDate:
-                    item.querySelector("pubDate")
-                        ?.textContent ||
-                    new Date().toISOString(),
-
-                source: url
-
-            }));
-
-    } catch (error) {
-
-        console.error(
-            "Error fetching RSS feed:",
-            url,
-            error
-        );
-
-        return [];
-    }
-}
-
+        // Inert HTML parsing (does not load images or run handlers from feed content)
         function stripHtml(html) {
-            let tmp = document.createElement("DIV");
-            tmp.innerHTML = html;
-            return tmp.textContent || tmp.innerText || "";
+            if (!html) return '';
+            const doc = new DOMParser().parseFromString(String(html), 'text/html');
+            return doc.body ? (doc.body.textContent || '') : '';
         }
 
+        function cleanText(html, maxLen = 400) {
+            return stripHtml(html).replace(/\s+/g, ' ').trim().slice(0, maxLen);
+        }
+
+        function parseDate(str) {
+            if (!str) return new Date().toISOString();
+            let d = new Date(str);
+            if (isNaN(d)) d = new Date(String(str).replace(/\s+[A-Z]{2,5}$/, '')); // strip odd TZ abbreviations
+            if (isNaN(d)) return new Date().toISOString();
+            return d.toISOString();
+        }
+
+        async function fetchWithTimeout(url, ms) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), ms);
+            try {
+                const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.text();
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+
+        function looksLikeFeed(text) {
+            return /<(rss|feed|rdf:RDF)[\s>]/i.test(text || '');
+        }
+
+        // ---------- Feed parsing (RSS 2.0, RSS 1.0/RDF and Atom) ----------
+        function childText(node, names) {
+            for (const name of names) {
+                for (const c of node.children) {
+                    if (c.nodeName === name || c.localName === name) {
+                        const t = (c.textContent || '').trim();
+                        if (t) return t;
+                    }
+                }
+            }
+            return '';
+        }
+
+        function getItemLink(node) {
+            let fallbackHref = '';
+            for (const c of node.children) {
+                if (c.localName !== 'link') continue;
+                const href = c.getAttribute('href');
+                const rel = c.getAttribute('rel');
+                const text = (c.textContent || '').trim();
+                if (!href && text) return safeUrl(text);                 // RSS <link>url</link>
+                if (href && (!rel || rel === 'alternate')) return safeUrl(href); // Atom
+                if (href && !fallbackHref && rel !== 'self') fallbackHref = href;
+            }
+            if (fallbackHref) return safeUrl(fallbackHref);
+            const guid = childText(node, ['guid', 'id']);
+            return /^https?:\/\//i.test(guid) ? safeUrl(guid) : '#';
+        }
+
+        function parseFeed(xmlText, sourceUrl) {
+            const cleaned = String(xmlText).replace(/^\uFEFF/, '').trim().replace(/^[^<]+/, '');
+            const xml = new DOMParser().parseFromString(cleaned, 'text/xml');
+            if (xml.getElementsByTagName('parsererror').length) {
+                const err = new Error('XML parse error');
+                err.isParseError = true;
+                throw err;
+            }
+            let nodes = Array.from(xml.getElementsByTagName('item'));
+            if (nodes.length === 0) nodes = Array.from(xml.getElementsByTagName('entry'));
+
+            return nodes.slice(0, MAX_ITEMS_PER_FEED).map(node => {
+                const link = getItemLink(node);
+                return {
+                    title: childText(node, ['title']) || 'Untitled',
+                    link: link,
+                    normalizedLink: normalizeUrl(link),
+                    description: cleanText(childText(node, ['description', 'summary', 'content:encoded', 'content'])) || 'No description available',
+                    pubDate: parseDate(childText(node, ['pubDate', 'published', 'updated', 'dc:date', 'date'])),
+                    source: sourceUrl
+                };
+            });
+        }
+
+        // Last-resort fallback: rss2json returns JSON and handles slightly malformed XML
+        async function fetchViaRss2Json(url) {
+            const text = await fetchWithTimeout('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(url), FETCH_TIMEOUT_MS);
+            const data = JSON.parse(text);
+            if (data.status !== 'ok' || !Array.isArray(data.items)) throw new Error(data.message || 'rss2json error');
+            return data.items.slice(0, MAX_ITEMS_PER_FEED).map(it => {
+                const link = safeUrl(it.link || it.guid || '#');
+                return {
+                    title: it.title || 'Untitled',
+                    link: link,
+                    normalizedLink: normalizeUrl(link),
+                    description: cleanText(it.description || it.content) || 'No description available',
+                    pubDate: parseDate(it.pubDate ? it.pubDate.replace(' ', 'T') + 'Z' : ''),
+                    source: url
+                };
+            });
+        }
+
+        async function fetchRSS(url) {
+            const order = [preferredProxy, ...corsProxies.map((_, i) => i).filter(i => i !== preferredProxy)];
+
+            for (const i of order) {
+                const proxy = corsProxies[i];
+                try {
+                    let text = await fetchWithTimeout(proxy.build(url), FETCH_TIMEOUT_MS);
+                    if (proxy.json) text = (JSON.parse(text) || {}).contents || '';
+                    if (!looksLikeFeed(text)) throw new Error('Response is not an RSS/Atom feed');
+                    const items = parseFeed(text, url);
+                    if (items.length === 0) throw new Error('Feed contained no items');
+                    preferredProxy = i;
+                    return items;
+                } catch (error) {
+                    console.warn(`[CyberGator] ${proxy.name} failed for ${url}:`, error.message);
+                    if (error.isParseError) break; // same XML from every proxy – go straight to rss2json
+                }
+            }
+
+            try {
+                const items = await fetchViaRss2Json(url);
+                if (items.length) return items;
+            } catch (error) {
+                console.warn(`[CyberGator] rss2json failed for ${url}:`, error.message);
+            }
+
+            console.error('Error fetching RSS feed (all methods failed):', url);
+            return [];
+        }
+
+        // ---------- Processing ----------
         function classifyTags(text) {
             const t = text.toLowerCase();
             const matched = [];
@@ -846,10 +945,11 @@
             
             articles.forEach(item => {
                 const normalizedLink = item.normalizedLink || item.link;
-                const title = item.title.toLowerCase().trim();
+                const title = (item.title || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+                const linkKnown = normalizedLink !== '#' && seenLinks.has(normalizedLink);
                 
-                if (!seenLinks.has(normalizedLink) && !seenTitles.has(title)) {
-                    seenLinks.add(normalizedLink);
+                if (!linkKnown && !seenTitles.has(title)) {
+                    if (normalizedLink !== '#') seenLinks.add(normalizedLink);
                     seenTitles.add(title);
                     uniqueArticles.push(item);
                 }
@@ -858,72 +958,123 @@
             return uniqueArticles;
         }
 
-        async function updateNews() {
-            const cachedArticles = sessionStorage.getItem('newsArticles');
-            
-            if (cachedArticles) {
-                try {
-                    let cached = JSON.parse(cachedArticles);
-                    cached = deduplicateArticles(cached);
-                    newsArticles = cached;
-                    feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Live Feeds (Cached)</span>`;
-                    
-                    newsArticles.forEach(item => {
-                        const { tags, score, severity } = classifyTags(`${item.title} ${item.description}`);
-                        item._tags = tags;
-                        item._score = score;
-                        item._severity = severity;
-                    });
-                    
-                    newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-                    displayFilteredNews();
-                    return;
-                } catch (e) {
-                    console.error('Cache error:', e);
-                }
-            }
-            
-            newsContainer.innerHTML = '';
-            newsArticles = [];
-            let successfulFetches = 0;
-            
+        function processArticles(list) {
+            const unique = deduplicateArticles(list);
+            unique.forEach(item => {
+                const { tags, score, severity } = classifyTags(`${item.title} ${item.description}`);
+                item._tags = tags;
+                item._score = score;
+                item._severity = severity;
+            });
+            unique.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+            return unique;
+        }
+
+        function setFeedStatus(state, text) {
+            const dotClass = state === 'active' ? 'feed-active' : state === 'error' ? 'feed-error' : 'feed-loading';
+            feedStatusIndicator.innerHTML = `<span class="feed-dot ${dotClass}"></span><span id="feed-status-text">${escapeHtml(text)}</span>`;
+        }
+
+        // ---------- Cache (sessionStorage, with expiry) ----------
+        function loadCache() {
             try {
-                const allNews = await Promise.all(rssFeeds.map(fetchRSS));
-                const flattenedNews = allNews.flat();
-                
-                if (flattenedNews.length === 0) {
-                    throw new Error('No articles retrieved from RSS feeds.');
-                }
-                
-                newsArticles = deduplicateArticles(flattenedNews);
-                successfulFetches = allNews.filter(arr => arr.length > 0).length;
-                
-                newsArticles.forEach(item => {
-                    const { tags, score, severity } = classifyTags(`${item.title} ${item.description}`);
-                    item._tags = tags;
-                    item._score = score;
-                    item._severity = severity;
-                });
-                
-                if (successfulFetches > 0) {
-                    feedStatusIndicator.innerHTML = `<span class="feed-dot feed-active"></span><span id="feed-status-text">Live Feeds</span>`;
-                } else {
-                    feedStatusIndicator.innerHTML = `<span class="feed-dot feed-error"></span><span id="feed-status-text">Error loading feeds</span>`;
-                }
-                
-                sessionStorage.setItem('newsArticles', JSON.stringify(newsArticles));
-                newsArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-                displayFilteredNews();
-            } catch (error) {
-                console.error('Error updating news:', error.message);
-                feedStatusIndicator.innerHTML = `<span class="feed-dot feed-error"></span><span id="feed-status-text">Error loading feeds</span>`;
-                displayNews([]);
+                const raw = sessionStorage.getItem(CACHE_KEY);
+                if (!raw) return null;
+                const cache = JSON.parse(raw);
+                if (!cache || !Array.isArray(cache.articles) || cache.articles.length === 0) return null;
+                if (Date.now() - cache.ts > CACHE_TTL_MS) return null;
+                return cache.articles;
+            } catch (e) {
+                return null;
             }
         }
 
+        function saveCache(articles) {
+            try {
+                const slim = articles.map(({ title, link, normalizedLink, description, pubDate, source }) =>
+                    ({ title, link, normalizedLink, description, pubDate, source }));
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), articles: slim }));
+            } catch (e) {
+                console.warn('Could not cache articles:', e);
+            }
+        }
+
+        function clearCache() {
+            try {
+                sessionStorage.removeItem(CACHE_KEY);
+                sessionStorage.removeItem('newsArticles'); // old cache key from previous version
+            } catch (e) { /* ignore */ }
+        }
+
+        async function runWithConcurrency(items, limit, worker) {
+            let index = 0;
+            const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+                while (index < items.length) {
+                    const current = items[index++];
+                    await worker(current);
+                }
+            });
+            await Promise.all(runners);
+        }
+
+        // ---------- Loading ----------
+        async function updateNews(forceRefresh = false) {
+            const myLoad = ++loadId;
+
+            if (!forceRefresh) {
+                const cached = loadCache();
+                if (cached) {
+                    isLoading = false;
+                    newsArticles = processArticles(cached);
+                    setFeedStatus('active', 'Live Feeds (Cached)');
+                    displayFilteredNews();
+                    return;
+                }
+            }
+
+            isLoading = true;
+            newsArticles = [];
+            const collected = [];
+            let completed = 0;
+            let successfulFetches = 0;
+
+            setFeedStatus('loading', `Loading feeds... (0/${rssFeeds.length})`);
+            displayFilteredNews();
+
+            await runWithConcurrency(rssFeeds, MAX_CONCURRENT_FEEDS, async (feedUrl) => {
+                const items = await fetchRSS(feedUrl);
+                if (myLoad !== loadId) return; // a newer refresh started
+                completed++;
+                if (items.length > 0) {
+                    successfulFetches++;
+                    collected.push(...items);
+                    newsArticles = processArticles(collected);
+                    displayFilteredNews(); // show articles progressively as feeds arrive
+                }
+                setFeedStatus('loading', `Loading feeds... (${completed}/${rssFeeds.length})`);
+            });
+
+            if (myLoad !== loadId) return;
+            isLoading = false;
+
+            if (successfulFetches === 0) {
+                console.error('Error updating news: No articles retrieved from RSS feeds.');
+                setFeedStatus('error', 'Error loading feeds');
+                displayNews([]);
+                return;
+            }
+
+            setFeedStatus('active', `Live Feeds (${successfulFetches}/${rssFeeds.length} sources)`);
+            saveCache(newsArticles);
+            displayFilteredNews();
+        }
+
         function filterByTime(articles, hours) {
-            const cutoff = new Date(Date.now() - (hours * 60 * 60 * 1000));
-            return articles.filter(item => new Date(item.pubDate) >= cutoff);
+            const cutoff = Date.now() - (hours * 60 * 60 * 1000);
+            return articles.filter(item => {
+                const t = new Date(item.pubDate).getTime();
+                return !isNaN(t) && t >= cutoff;
+            });
         }
 
         function displayFilteredNews() {
@@ -938,7 +1089,7 @@
             if (newsItems.length === 0) {
                 const noNews = document.createElement('p');
                 noNews.className = 'text-gray-400 text-center col-span-full';
-                noNews.textContent = 'No articles available for this time period.';
+                noNews.textContent = isLoading ? 'Loading articles...' : 'No articles available for this time period.';
                 fragment.appendChild(noNews);
                 newsContainer.appendChild(fragment);
                 return;
@@ -950,17 +1101,17 @@
                 
                 const tagsHtml = item._tags && item._tags.length > 0 ? `
                     <div class="tags">
-                        ${item._tags.map(t => `<span class="tag ${t.severity}">${t.name}</span>`).join('')}
+                        ${item._tags.map(t => `<span class="tag ${t.severity}">${escapeHtml(t.name)}</span>`).join('')}
                     </div>
                 ` : '';
                 
                 newsItem.innerHTML = `
                     <h3 class="mb-2">
-                        <a href="${item.link}" target="_blank" class="hover:text-cyan-300">${item.title}</a>
+                        <a href="${escapeHtml(safeUrl(item.link))}" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-300">${escapeHtml(item.title)}</a>
                     </h3>
                     ${tagsHtml}
-                    <p class="description mb-2">${stripHtml(item.description).slice(0, 150)}...</p>
-                    <p class="meta">Source: ${item.source}</p>
+                    <p class="description mb-2">${escapeHtml(stripHtml(item.description).slice(0, 150))}...</p>
+                    <p class="meta">Source: ${escapeHtml(item.source)}</p>
                     <p class="meta">Published: ${new Date(item.pubDate).toLocaleString()}</p>
                 `;
                 fragment.appendChild(newsItem);
@@ -969,11 +1120,14 @@
             newsContainer.appendChild(fragment);
         }
 
+        // ---------- Hypothesis generation ----------
         function generateThreatHuntingHypothesis() {
             const filtered = filterByTime(newsArticles, currentTimeFilter);
             
             if (filtered.length === 0) {
-                alert('No articles available in the selected time range to generate hypotheses.');
+                alert(isLoading
+                    ? 'Feeds are still loading. Please wait a moment and try again.'
+                    : 'No articles available in the selected time range to generate hypotheses.');
                 return;
             }
 
@@ -1000,13 +1154,15 @@
             }
 
             return articles.slice(0, 10).map((article, index) => {
+                const safeTitle = escapeHtml(article.title);
+                const pubDateStr = new Date(article.pubDate).toLocaleDateString();
                 const creativeIdeas = [
                     {
-                        title: article.title,
-                        hypothesis: `Hunt for shadow IT exploiting "${article.title}" by monitoring unsanctioned cloud uploads.`,
+                        title: safeTitle,
+                        hypothesis: `Hunt for shadow IT exploiting "${safeTitle}" by monitoring unsanctioned cloud uploads.`,
                         context: `
                             <ul class="list-disc list-inside">
-                                <li><strong>Unconventional Insight:</strong> Employees might bypass security uploading data related to this on ${new Date(article.pubDate).toLocaleDateString()}.</li>
+                                <li><strong>Unconventional Insight:</strong> Employees might bypass security uploading data related to this on ${pubDateStr}.</li>
                                 <li><strong>TTPs:</strong> Data exfiltration (T1041), abuse of cloud services (T1213).</li>
                                 <li><strong>Search:</strong> Look for spikes in cloud traffic not tied to approved apps.</li>
                                 <li><strong>Out-of-Box:</strong> Set up a honeypot cloud bucket to catch leaks.</li>
@@ -1014,11 +1170,11 @@
                         `
                     },
                     {
-                        title: article.title,
-                        hypothesis: `Investigate if "${article.title}" is a decoy for a larger APT campaign targeting your sector.`,
+                        title: safeTitle,
+                        hypothesis: `Investigate if "${safeTitle}" is a decoy for a larger APT campaign targeting your sector.`,
                         context: `
                             <ul class="list-disc list-inside">
-                                <li><strong>Unconventional Insight:</strong> Noise from this event on ${new Date(article.pubDate).toLocaleDateString()} could mask stealthier attacks.</li>
+                                <li><strong>Unconventional Insight:</strong> Noise from this event on ${pubDateStr} could mask stealthier attacks.</li>
                                 <li><strong>TTPs:</strong> Obfuscated files (T1027), C2 (T1071).</li>
                                 <li><strong>Search:</strong> Correlate with low-and-slow traffic patterns.</li>
                                 <li><strong>Out-of-Box:</strong> Deploy deceptive endpoints to lure attackers.</li>
@@ -1026,11 +1182,11 @@
                         `
                     },
                     {
-                        title: article.title,
-                        hypothesis: `Probe for insider threats amplifying "${article.title}" via unauthorized device use.`,
+                        title: safeTitle,
+                        hypothesis: `Probe for insider threats amplifying "${safeTitle}" via unauthorized device use.`,
                         context: `
                             <ul class="list-disc list-inside">
-                                <li><strong>Unconventional Insight:</strong> This incident on ${new Date(article.pubDate).toLocaleDateString()} might inspire rogue insiders.</li>
+                                <li><strong>Unconventional Insight:</strong> This incident on ${pubDateStr} might inspire rogue insiders.</li>
                                 <li><strong>TTPs:</strong> Physical access (T1200), data theft (T1030).</li>
                                 <li><strong>Search:</strong> Check USB logs or unsanctioned hardware connections.</li>
                                 <li><strong>Out-of-Box:</strong> Plant fake sensitive files to track insider moves.</li>
@@ -1038,11 +1194,11 @@
                         `
                     },
                     {
-                        title: article.title,
-                        hypothesis: `Explore if "${article.title}" ties to a supply chain attack via third-party chatter.`,
+                        title: safeTitle,
+                        hypothesis: `Explore if "${safeTitle}" ties to a supply chain attack via third-party chatter.`,
                         context: `
                             <ul class="list-disc list-inside">
-                                <li><strong>Unconventional Insight:</strong> Vendor mentions on ${new Date(article.pubDate).toLocaleDateString()} could hint at broader compromise.</li>
+                                <li><strong>Unconventional Insight:</strong> Vendor mentions on ${pubDateStr} could hint at broader compromise.</li>
                                 <li><strong>TTPs:</strong> Supply chain compromise (T1195), backdoors (T1543).</li>
                                 <li><strong>Search:</strong> Audit vendor-related traffic or software updates.</li>
                                 <li><strong>Out-of-Box:</strong> Scrape dark web for vendor leak mentions.</li>
@@ -1050,11 +1206,11 @@
                         `
                     },
                     {
-                        title: article.title,
-                        hypothesis: `Hunt for IoT exploitation linked to "${article.title}" as a botnet precursor.`,
+                        title: safeTitle,
+                        hypothesis: `Hunt for IoT exploitation linked to "${safeTitle}" as a botnet precursor.`,
                         context: `
                             <ul class="list-disc list-inside">
-                                <li><strong>Unconventional Insight:</strong> IoT chatter on ${new Date(article.pubDate).toLocaleDateString()} might signal a buildup.</li>
+                                <li><strong>Unconventional Insight:</strong> IoT chatter on ${pubDateStr} might signal a buildup.</li>
                                 <li><strong>TTPs:</strong> Brute force (T1110), network sniffing (T1040).</li>
                                 <li><strong>Search:</strong> Monitor IoT device outbound connections.</li>
                                 <li><strong>Out-of-Box:</strong> Simulate an IoT honeypot to trap bots.</li>
@@ -1062,11 +1218,11 @@
                         `
                     },
                     {
-                        title: article.title,
-                        hypothesis: `Investigate if "${article.title}" masks a zero-day exploit in your tech stack.`,
+                        title: safeTitle,
+                        hypothesis: `Investigate if "${safeTitle}" masks a zero-day exploit in your tech stack.`,
                         context: `
                             <ul class="list-disc list-inside">
-                                <li><strong>Unconventional Insight:</strong> This event on ${new Date(article.pubDate).toLocaleDateString()} could be a smokescreen.</li>
+                                <li><strong>Unconventional Insight:</strong> This event on ${pubDateStr} could be a smokescreen.</li>
                                 <li><strong>TTPs:</strong> Exploitation (T1203), privilege escalation (T1068).</li>
                                 <li><strong>Search:</strong> Look for crashes or unknown processes.</li>
                                 <li><strong>Out-of-Box:</strong> Cross-check with underground forums for zero-day sales.</li>
@@ -1074,11 +1230,11 @@
                         `
                     },
                     {
-                        title: article.title,
-                        hypothesis: `Probe for ransomware prep tied to "${article.title}" via unusual encryption spikes.`,
+                        title: safeTitle,
+                        hypothesis: `Probe for ransomware prep tied to "${safeTitle}" via unusual encryption spikes.`,
                         context: `
                             <ul class="list-disc list-inside">
-                                <li><strong>Unconventional Insight:</strong> Pre-attack signals on ${new Date(article.pubDate).toLocaleDateString()} might be subtle.</li>
+                                <li><strong>Unconventional Insight:</strong> Pre-attack signals on ${pubDateStr} might be subtle.</li>
                                 <li><strong>TTPs:</strong> Data encryption (T1486), lateral movement (T1021).</li>
                                 <li><strong>Search:</strong> Detect rapid file changes or shadow copies deletion.</li>
                                 <li><strong>Out-of-Box:</strong> Use canary files to trigger alerts.</li>
@@ -1086,11 +1242,11 @@
                         `
                     },
                     {
-                        title: article.title,
-                        hypothesis: `Hunt for phishing lures mimicking "${article.title}" in your email traffic.`,
+                        title: safeTitle,
+                        hypothesis: `Hunt for phishing lures mimicking "${safeTitle}" in your email traffic.`,
                         context: `
                             <ul class="list-disc list-inside">
-                                <li><strong>Unconventional Insight:</strong> Attackers might weaponize this news from ${new Date(article.pubDate).toLocaleDateString()}.</li>
+                                <li><strong>Unconventional Insight:</strong> Attackers might weaponize this news from ${pubDateStr}.</li>
                                 <li><strong>TTPs:</strong> Spearphishing (T1566.001), credential theft (T1552).</li>
                                 <li><strong>Search:</strong> Filter emails for article keywords or fake domains.</li>
                                 <li><strong>Out-of-Box:</strong> Send fake phishing tests to train users.</li>
@@ -1098,11 +1254,11 @@
                         `
                     },
                     {
-                        title: article.title,
-                        hypothesis: `Investigate if "${article.title}" hints at a cloud breach via misconfig echoes.`,
+                        title: safeTitle,
+                        hypothesis: `Investigate if "${safeTitle}" hints at a cloud breach via misconfig echoes.`,
                         context: `
                             <ul class="list-disc list-inside">
-                                <li><strong>Unconventional Insight:</strong> Misconfigs reported on ${new Date(article.pubDate).toLocaleDateString()} could ripple to your cloud.</li>
+                                <li><strong>Unconventional Insight:</strong> Misconfigs reported on ${pubDateStr} could ripple to your cloud.</li>
                                 <li><strong>TTPs:</strong> Unauthorized access (T1078), cloud data exposure (T1530).</li>
                                 <li><strong>Search:</strong> Audit cloud logs for public bucket access.</li>
                                 <li><strong>Out-of-Box:</strong> Simulate a breach to test response time.</li>
@@ -1110,11 +1266,11 @@
                         `
                     },
                     {
-                        title: article.title,
-                        hypothesis: `Explore if "${article.title}" is exploited via social media disinformation campaigns.`,
+                        title: safeTitle,
+                        hypothesis: `Explore if "${safeTitle}" is exploited via social media disinformation campaigns.`,
                         context: `
                             <ul class="list-disc list-inside">
-                                <li><strong>Unconventional Insight:</strong> News on ${new Date(article.pubDate).toLocaleDateString()} might fuel panic-driven attacks.</li>
+                                <li><strong>Unconventional Insight:</strong> News on ${pubDateStr} might fuel panic-driven attacks.</li>
                                 <li><strong>TTPs:</strong> Social engineering (T1566), malware distribution (T1204).</li>
                                 <li><strong>Search:</strong> Monitor internal chats for article-related links.</li>
                                 <li><strong>Out-of-Box:</strong> Analyze X posts for coordinated threat mentions.</li>
@@ -1145,11 +1301,12 @@
 
         generateButton.addEventListener('click', generateThreatHuntingHypothesis);
         refreshButton.addEventListener('click', () => {
-            sessionStorage.removeItem('newsArticles');
-            updateNews();
+            clearCache();
+            updateNews(true);
         });
 
         // Initialize
+        try { sessionStorage.removeItem('newsArticles'); } catch (e) { /* ignore */ }
         updateNews();
 
         // OSINTGator Keyboard Navigation 
